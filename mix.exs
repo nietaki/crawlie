@@ -5,6 +5,7 @@ defmodule Crawlie.Mixfile do
     [app: :crawlie,
      version: "0.1.0",
      elixir: "~> 1.3",
+     package: package(),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps()]
@@ -27,6 +28,17 @@ defmodule Crawlie.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:ex_doc, "~> 0.14.3", only: :dev},
+      {:inch_ex, "~> 0.5.5", only: :dev},
+      {:httpoison, "~> 0.10.0"},
+      {:gen_stage, "~> 0.9.0"},
+    ]
+  end
+
+  defp package do
+    %{licenses: ["MIT"],
+      maintainers: ["Jacek Królikowski"],
+      links: %{"GitHub" => "https://github.com/nietaki/crawlie"}}
   end
 end
