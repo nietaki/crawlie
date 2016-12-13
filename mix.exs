@@ -50,7 +50,7 @@ defmodule Crawlie.Mixfile do
 
   defp package do
     %{licenses: ["MIT"],
-      maintainers: ["Jacek Królikowski"],
+      maintainers: ["Jacek Królikowski <nietaki@gmail.com>"],
       links: %{"GitHub" => "https://github.com/nietaki/crawlie"}}
   end
 end
