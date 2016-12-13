@@ -1,9 +1,7 @@
 defmodule Crawlie.ParserLogicTest do
   use ExUnit.Case
 
-  defmodule Default do
-    use Crawlie.ParserLogic
-  end
+  alias Crawlie.ParserLogic.Default
 
   test "default implementation of the ParserLogic callbacks" do
     assert Default.parse(:some_url, "some body") == "some body"
