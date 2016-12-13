@@ -1,10 +1,12 @@
 defmodule Crawlie.Mixfile do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :crawlie,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.3",
 
       package: package(),
@@ -49,8 +51,20 @@ defmodule Crawlie.Mixfile do
   end
 
   defp package do
-    %{licenses: ["MIT"],
+    [
+      licenses: ["MIT"],
       maintainers: ["Jacek Królikowski <nietaki@gmail.com>"],
-      links: %{"GitHub" => "https://github.com/nietaki/crawlie"}}
+      links: %{"GitHub" => "https://github.com/nietaki/crawlie"},
+      description: description,
+    ]
+  end
+
+  defp description do
+    """
+    A simple but competent Elixir web crawler library (to be) powered by GenStage.
+
+    Don't use the package quite yet please, it's very much a work in progress.
+    `0.2.0` should be the first relatively useful release.
+    """
   end
 end
