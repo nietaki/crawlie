@@ -2,10 +2,9 @@ defmodule Crawlie do
 
   alias Crawlie.Options
 
-  @spec crawl(Stream.t, module, Keyword.t)
-    :: {:ok, Stream.t} | {:error, term}
+  @spec crawl!(Stream.t, module, Keyword.t) :: Stream.t
 
-  def crawl(source, parser_logic, opts \\ []) do
+  def crawl!(source, parser_logic, opts \\ []) do
     opts = Keyword.merge(Options.defaults, opts)
 
     client = Options.get(opts, :http_client)
@@ -17,11 +16,6 @@ defmodule Crawlie do
       |> Stream.map(&parser_logic.extract_data(&1))
 
     results
-  end
-
-  def crawl!(source, parser_logic, opts) do
-    {:ok, result_stream} = crawl(source, parser_logic, opts)
-    result_stream
   end
 
 end
