@@ -1,4 +1,4 @@
-# Crawlie (the crawler) [![badge](https://travis-ci.org/nietaki/crawlie.svg?branch=master)](https://travis-ci.org/nietaki/crawlie) [![Coverage Status](https://coveralls.io/repos/github/nietaki/crawlie/badge.svg)](https://coveralls.io/github/nietaki/crawlie)
+# Crawlie (the crawler) [![badge](https://travis-ci.org/nietaki/crawlie.svg?branch=master)](https://travis-ci.org/nietaki/crawlie) [![Coverage Status](https://coveralls.io/repos/github/nietaki/crawlie/badge.svg?branch=master)](https://coveralls.io/github/nietaki/crawlie?branch=master)
 
 Crawlie is meant to be a simple Elixir library for writing decently-peforming crawlers with minimum effort. It's a work in progress, it doesn't do much yet.
 
