@@ -5,8 +5,6 @@ defmodule Crawlie do
   @spec crawl!(Stream.t, module, Keyword.t) :: Stream.t
 
   def crawl!(source, parser_logic, opts \\ []) do
-    opts = Keyword.merge(Options.defaults, opts)
-
     client = Options.get(opts, :http_client)
 
     results = source

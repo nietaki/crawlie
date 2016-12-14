@@ -5,11 +5,22 @@ defmodule Crawlie.Options do
   # API functions
   #===========================================================================
 
-  def get(opts, option_name) do
+  @spec get(Keyword.t, atom, term) :: term
+  @doc """
+  Gets the option name from the options.
+
+  If the option isn't specified in the provided options, but crawlie specifies
+  a default value, the default is returned.
+  """
+  def get(opts, option_name, default \\ nil) do
     opts = Keyword.merge(defaults(), opts)
-    Keyword.get(opts, option_name)
+    Keyword.get(opts, option_name, default)
   end
 
+  @spec put(Keyword.t, atom, term) :: Keyword.t
+  @doc """
+  Puts a option value in the options
+  """
   def put(opts, option_name, value) do
     Keyword.put(opts, option_name, value)
   end
@@ -28,7 +39,7 @@ defmodule Crawlie.Options do
   # Internal functions
   #===========================================================================
 
-  def defaults() do
+  defp defaults() do
     [follow_redirect: true, http_client: Crawlie.HttpClient.HTTPoisonClient]
   end
 
