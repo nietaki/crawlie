@@ -20,6 +20,7 @@ defmodule Crawlie.Mixfile do
         "coveralls.html": :test,
         "test": :test,
       ],
+      docs: docs,
    ]
   end
 
@@ -28,6 +29,14 @@ defmodule Crawlie.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger, :httpoison]]
+  end
+
+  defp docs do
+    [
+      main: "README",
+      source_url: "https://github.com/nietaki/crawlie",
+      extras: ["README.md"]
+    ]
   end
 
   # Dependencies can be Hex packages:
