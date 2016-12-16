@@ -33,7 +33,7 @@ defmodule Crawlie.Mixfile do
 
   defp docs do
     [
-      main: "README",
+      main: "readme",
       source_url: "https://github.com/nietaki/crawlie",
       extras: ["README.md"]
     ]
