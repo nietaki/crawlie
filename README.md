@@ -4,7 +4,7 @@ Crawlie is meant to be a simple Elixir library for writing decently-peforming cr
 
 ## Usage example
 
-`TODO`
+See the [crawlie_example](https://github.com/nietaki/crawlie_example) project.
 
 ## Configuration
 
@@ -22,7 +22,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
     ```elixir
     def deps do
-      [{:crawlie, "~> 0.1.0"}]
+      [{:crawlie, "~> 0.1.1"}]
     end
     ```
 
