@@ -4,16 +4,15 @@ defmodule Crawlie.OptionsTest do
   alias Crawlie.Options
 
   test "getting the http client" do
-    empty = Keyword.new
+    defaults = Options.defaults
+    assert Keyword.get(defaults, :http_client) == Crawlie.HttpClient.HTTPoisonClient
 
-    assert Options.get(empty, :http_client) == Crawlie.HttpClient.HTTPoisonClient
-    different_client = Options.put(empty, :http_client, :foo)
-
-    assert Options.get(different_client, :http_client) == :foo
+    with_different_client = Keyword.put(defaults, :http_client, :foo)
+    assert Keyword.get(with_different_client, :http_client) == :foo
   end
 
   test "getting a default option" do
-    empty = Keyword.new
-    assert true == Options.get(empty, :follow_redirect)
+    defaults = Options.defaults
+    assert true == Keyword.get(defaults, :follow_redirect)
   end
 end

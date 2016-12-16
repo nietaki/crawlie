@@ -23,7 +23,7 @@ defmodule Crawlie.ParserLogic do
       def extract_links(_), do: []
 
       @doc false
-      def extract_data(processed), do: processed
+      def extract_data(processed), do: [processed]
 
       defoverridable [parse: 2, extract_links: 1, extract_data: 1]
     end

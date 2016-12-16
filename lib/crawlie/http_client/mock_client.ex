@@ -3,7 +3,9 @@ defmodule Crawlie.HttpClient.MockClient do
   @behaviour Crawlie.HttpClient
 
   @doc """
-  ### Example
+  Implements the `Crawlie.HttpClient` behaviour.
+
+  ## Example
       iex> fun = fn(url) -> {:ok, url <> " body"} end
       iex> opts = [mock_client_fun: fun]
       iex> Crawlie.HttpClient.MockClient.get("http://a.bc/", opts)
@@ -16,7 +18,9 @@ defmodule Crawlie.HttpClient.MockClient do
 
 
   @doc """
-  ### Example
+  A helper `:mock_client_fun` returning a success and the passed url.
+
+  ## Example
       iex> alias Crawlie.HttpClient.MockClient
       iex> fun = MockClient.return_url
       iex> fun.("http://foo.bar/")
@@ -26,7 +30,9 @@ defmodule Crawlie.HttpClient.MockClient do
 
 
   @doc """
-  ### Example
+  A helper `:mock_client_fun` returning `"<html />"` for any passed url.
+
+  ## Example
       iex> alias Crawlie.HttpClient.MockClient
       iex> fun = MockClient.return_html
       iex> fun.("http://foo.bar/")
@@ -36,7 +42,9 @@ defmodule Crawlie.HttpClient.MockClient do
 
 
   @doc """
-  ### Example
+  A helper `:mock_client_fun` returning a `:foo` error for any passed url.
+
+  ## Example
       iex> alias Crawlie.HttpClient.MockClient
       iex> fun = MockClient.return_error(:foo)
       iex> fun.("http://foo.bar/")
