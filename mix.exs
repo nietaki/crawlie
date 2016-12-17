@@ -35,7 +35,8 @@ defmodule Crawlie.Mixfile do
     [
       main: "readme",
       source_url: "https://github.com/nietaki/crawlie",
-      extras: ["README.md"]
+      extras: ["README.md"],
+      assets: ["assets"],
     ]
   end
 

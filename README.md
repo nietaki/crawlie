@@ -22,7 +22,7 @@ stream.
 
 Below is a rough diagram:
 
-![crawlie architecture diagram](res/crawlie_stages.png)
+![crawlie architecture diagram](assets/crawlie_stages.png)
 
 All per-page processing is done in a single stage to minimise the amount of data sent between
 processes.
