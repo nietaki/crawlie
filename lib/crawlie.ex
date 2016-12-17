@@ -16,7 +16,7 @@ defmodule Crawlie do
   ## Crawlie options
 
   - `:http_client` - module implementing the `Crawlie.HttpClient` behaviour to be
-    used to make the requests.
+    used to make the requests. If not provided, will default to `Crawlie.HttpClient.HTTPoisonClient`.
   - `:mock_client_fun` - If you're using the `Crawlie.HttpClient.MockClient`, this
     would be the `url -> {:ok, body :: String.t} | {:error, term}` function simulating
     making the requests.
