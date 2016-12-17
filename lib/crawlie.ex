@@ -1,5 +1,6 @@
 defmodule Crawlie do
 
+  alias Experimental.GenStage
   alias Crawlie.Options
 
 
@@ -24,11 +25,15 @@ defmodule Crawlie do
     options = Options.with_defaults(options)
     client = Keyword.get(options, :http_client)
 
-    results = source
-      |> Stream.map(&client.get(&1, options))
-      |> Stream.map(&elem(&1, 1))
-      |> Stream.map(&parser_logic.parse("fake_url", &1))
-      |> Stream.flat_map(&parser_logic.extract_data(&1))
+    # results = source
+    #   |> Stream.map(&client.get(&1, options))
+    #   |> Stream.map(&elem(&1, 1))
+    #   |> Stream.map(&parser_logic.parse("fake_url", &1))
+    #   |> Stream.flat_map(&parser_logic.extract_data(&1))
+
+    {:ok, url_stage} = GenStage.from_enumerable(source)
+
+    results = GenStage.stream([url_stage])
 
     results
   end

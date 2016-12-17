@@ -50,7 +50,7 @@ defmodule Crawlie.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:gen_stage, "~> 0.9.0"},
+      {:gen_stage, "~> 0.10.0"},
       {:httpoison, "~> 0.10.0"},
       # testing and documentation
       {:ex_doc, "~> 0.14.3", only: :dev},
