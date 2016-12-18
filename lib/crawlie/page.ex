@@ -39,4 +39,21 @@ defmodule Crawlie.Page do
   def new(url, depth \\ 0) when is_binary(url) and is_integer(depth),
     do: %This{url: url, depth: depth}
 
+
+  @spec child(This.t, String.t) :: This.t
+  @doc """
+  Creates a "child page" - a new `Crawlie.Page` struct with depth one greate than
+  the one of the parent and no retries.
+  """
+  def child(%This{depth: depth}, url) when is_binary(url) do
+    This.new(url, depth + 1)
+  end
+
+
+  @spec retry(This.t) :: This.t
+  @doc """
+  Returns the `Crawlie.Page` object with the retry count increased
+  """
+  def retry(%This{retries: r} = this), do: %This{this | retries: r + 1}
+
 end

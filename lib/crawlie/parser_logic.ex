@@ -3,11 +3,11 @@ defmodule Crawlie.ParserLogic do
   @type processed :: term
   @type result :: term
 
-  @callback parse(url :: String.t, body :: String.t, Keyword.t) :: processed
+  @callback parse(url :: String.t, body :: String.t, options :: Keyword.t) :: processed
 
-  @callback extract_links(url :: String.t, processed, Keyword.t) :: [String.t]
+  @callback extract_links(url :: String.t, processed, options :: Keyword.t) :: [String.t]
 
-  @callback extract_data(url :: String.t, processed, Keyword.t) :: [result]
+  @callback extract_data(url :: String.t, processed, options :: Keyword.t) :: [result]
 
   @doc false
   defmacro __using__(_) do
