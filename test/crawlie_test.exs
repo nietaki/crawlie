@@ -1,6 +1,8 @@
 defmodule CrawlieTest do
   use ExUnit.Case
 
+  import ExUnit.CaptureLog
+
   alias Crawlie.Options
   alias Crawlie.HttpClient.MockClient
   alias Crawlie.ParserLogic.Default, as: DefaultParserLogic
@@ -24,7 +26,7 @@ defmodule CrawlieTest do
 
     def parse(_url, body, options) do
       assert Keyword.get(options, :foo) == :bar
-      "parsed " <> body
+      {:ok, "parsed " <> body}
     end
 
     def extract_links(_url, _processed, _options) do
@@ -72,7 +74,7 @@ defmodule CrawlieTest do
     @behaviour Crawlie.ParserLogic
 
     def parse(url, _body, _options) do
-      url
+      {:ok, url}
     end
 
     def extract_links(_url, parsed, _options) do
@@ -128,6 +130,27 @@ defmodule CrawlieTest do
     ret = Crawlie.crawl(urls, DefaultParserLogic, opts)
 
     assert Enum.to_list(ret) == []
+  end
+
+
+
+  defmodule IncompetentParser do
+    use Crawlie.ParserLogic
+    def parse(_, _, _), do: {:error, :i_cant_parse_this}
+  end
+
+  test "if the parser fails to parse a page, the page is skipped" do
+    whole_test = fn() ->
+      opts = Options.with_mock_client([])
+      opts = Keyword.put(opts, :mock_client_fun, errors_out_times(3))
+
+      urls = ["foo", "bar", "someweirdurl"]
+      ret = Crawlie.crawl(urls, IncompetentParser, opts)
+
+      assert Enum.to_list(ret) == []
+    end
+    
+    assert String.contains?(capture_log(whole_test), "someweirdurl")
   end
 
   @tag skip: true

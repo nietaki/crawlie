@@ -4,6 +4,8 @@ defmodule Crawlie do
   The simple Elixir web crawler.
   """
 
+  require Logger
+
   alias Experimental.GenStage
   alias Experimental.Flow
 
@@ -48,7 +50,7 @@ defmodule Crawlie do
     url_stage
       |> Flow.from_stage(options)
       |> Flow.flat_map(&fetch_operation(&1, options, url_stage))
-      |> Flow.map(&parse_operation(&1, options, parser_logic))
+      |> Flow.flat_map(&parse_operation(&1, options, parser_logic))
       |> Flow.each(&extract_links_operation(&1, options, parser_logic, url_stage))
       |> Flow.flat_map(&extract_data_operation(&1, options, parser_logic))
   end
@@ -68,11 +70,16 @@ defmodule Crawlie do
   end
 
 
-  @spec parse_operation({Page.t, String.t}, Keyword.t, module) :: {Page.t, term}
+  @spec parse_operation({Page.t, String.t}, Keyword.t, module) :: [{Page.t, term}]
   @doc false
   def parse_operation({%Page{url: url} = page, body}, options, parser_logic) when is_binary(body) do
-    parsed = parser_logic.parse(url, body, options)
-    {page, parsed}
+
+    case parser_logic.parse(url, body, options) do
+      {:ok, parsed} -> [{page, parsed}]
+      {:error, reason} ->
+        Logger.warn "could not parse #{inspect page.url}, parsing failed with error #{inspect reason}"
+        []
+    end
   end
 
 
@@ -91,5 +98,9 @@ defmodule Crawlie do
   def extract_data_operation({%Page{url: url}, parsed}, options, module) do
     module.extract_data(url, parsed, options)
   end
+
+
+  def is_ok_tuple({:ok, _}), do: true
+  def is_ok_tuple(_), do: false
 
 end

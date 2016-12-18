@@ -3,7 +3,7 @@ defmodule Crawlie.ParserLogic do
   @type parsed :: term
   @type result :: term
 
-  @callback parse(url :: String.t, body :: String.t, options :: Keyword.t) :: parsed
+  @callback parse(url :: String.t, body :: String.t, options :: Keyword.t) :: {:ok, parsed} | {:error, term}
 
   @callback extract_links(url :: String.t, parsed, options :: Keyword.t) :: [String.t]
 
@@ -15,7 +15,7 @@ defmodule Crawlie.ParserLogic do
       @behaviour Crawlie.ParserLogic
 
       @doc false
-      def parse(_url, body, _options), do: body
+      def parse(_url, body, _options), do: {:ok, body}
 
       @doc false
       def extract_links(_url, _, _options), do: []

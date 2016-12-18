@@ -15,7 +15,7 @@ defmodule Crawlie.HttpClient.MockClient do
     client_function = Keyword.fetch!(opts, :mock_client_fun)
     case client_function.(url) do
       {:ok, body} = res when is_binary(body) -> res
-      {:error, reason} = err -> err
+      {:error, _reason} = err -> err
       els -> raise "unexpected value returned from the mock client function: #{inspect els}"
     end
   end
