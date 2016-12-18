@@ -110,10 +110,47 @@ defmodule CrawlieTest do
     ])
   end
 
+  test "fetching an url succeeds if the fetch fails few enough times" do
+    opts = Options.with_mock_client([max_retries: 2])
+    opts = Keyword.put(opts, :mock_client_fun, errors_out_times(2))
+
+    urls = ["foo"]
+    ret = Crawlie.crawl(urls, DefaultParserLogic, opts)
+
+    assert Enum.to_list(ret) == ["foo"]
+  end
+
+  test "fetching an url fails if the fetch fails too many times" do
+    opts = Options.with_mock_client([max_retries: 2])
+    opts = Keyword.put(opts, :mock_client_fun, errors_out_times(3))
+
+    urls = ["foo"]
+    ret = Crawlie.crawl(urls, DefaultParserLogic, opts)
+
+    assert Enum.to_list(ret) == []
+  end
+
   @tag skip: true
   test "any page is visited no more than once" do
     # TODO
     assert false
+  end
+
+  #---------------------------------------------------------------------------
+  # Helper Functions
+  #---------------------------------------------------------------------------
+
+  def errors_out_times(times) do
+
+    {:ok, agent} = Agent.start_link(fn() -> 0 end)
+
+    fn
+      (url) ->
+        case Agent.get_and_update(agent, &({&1, &1 + 1})) do
+          attempt when attempt < times -> {:error, :foo}
+          _attempt -> {:ok, url}
+        end
+    end
   end
 
 end

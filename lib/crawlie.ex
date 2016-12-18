@@ -56,12 +56,13 @@ defmodule Crawlie do
 
   @spec fetch_operation(Page.t, Keyword.t, GenStage.stage) :: [{Page.t, String.t}]
   @doc false
-  def fetch_operation(%Page{url: url} = page, options, _url_stage) do
+  def fetch_operation(%Page{url: url} = page, options, url_stage) do
     client = Keyword.get(options, :http_client)
     case client.get(url, options) do
       {:ok, body} -> [{page, body}]
       {:error, _reason} ->
-        #TODO retry
+        retried_page = Page.retry(page)
+        UrlManager.add_pages(url_stage, [retried_page])
         []
     end
   end
