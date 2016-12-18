@@ -4,8 +4,8 @@ defmodule Crawlie.ParserLogicTest do
   alias Crawlie.ParserLogic.Default
 
   test "default implementation of the ParserLogic callbacks" do
-    assert Default.parse(:some_url, "some body") == "some body"
-    assert Default.extract_links(:some_url, :some_processed) == []
-    assert Default.extract_data(:some_url, :some_processed) == [:some_processed]
+    assert Default.parse(:some_url, "some body", []) == "some body"
+    assert Default.extract_links(:some_url, :some_processed, [foo: :bar]) == []
+    assert Default.extract_data(:some_url, :some_processed, []) == [:some_processed]
   end
 end
