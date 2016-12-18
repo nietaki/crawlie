@@ -64,7 +64,6 @@ defmodule Crawlie.Stage.UrlManagerTest do
       assert new_state.options == state.options
 
       assert Heap.size(new_state.discovered) == 0
-
       # TODO: visited
     end
 

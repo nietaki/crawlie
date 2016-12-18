@@ -1,5 +1,9 @@
 defmodule Crawlie do
 
+  @moduledoc """
+  The simple Elixir web crawler.
+  """
+
   alias Experimental.GenStage
   alias Experimental.Flow
 
@@ -30,6 +34,11 @@ defmodule Crawlie do
   - `:mock_client_fun` - If you're using the `Crawlie.HttpClient.MockClient`, this
     would be the `url -> {:ok, body :: String.t} | {:error, term}` function simulating
     making the requests.
+  - `:min_demand`, `:max_demand` - see [Flow documentation](https://hexdocs.pm/gen_stage/Experimental.Flow.html)
+    for details
+  - `:max_depth` - maximum crawling "depth". `0` by default.
+  - `:max_retries` - maximum amount of tries Crawlie should try to fetch any individual
+    page before giving up. By default `3`.
   """
   def crawl(source, parser_logic, options \\ []) do
     options = Options.with_defaults(options)

@@ -16,6 +16,9 @@ defmodule Crawlie.HttpClient.HTTPoisonClient do
   ]
 
 
+  @doc """
+  Implements the `Crawlie.HttpClient` behaviour.
+  """
   def get(url, opts) do
     headers = Keyword.get(opts, :headers, [])
     httpoison_opts = Keyword.take(opts, @valid_configuration_keys)

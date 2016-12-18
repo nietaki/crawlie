@@ -110,4 +110,10 @@ defmodule CrawlieTest do
     ])
   end
 
+  @tag skip: true
+  test "any page is visited no more than once" do
+    # TODO
+    assert false
+  end
+
 end
