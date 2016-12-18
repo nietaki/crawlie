@@ -95,17 +95,15 @@ defmodule Crawlie.Stage.UrlManager do
     end
   end
 
-  def shutdown_gracefully_after_timeout(timeout \\ 10) do
-    :timer.apply_after(timeout, This, :shutdown_gracefully, [self()])
-  end
-
-  def shutdown_gracefully(pid), do: GenStage.async_notify(pid, {:producer, :done})
-
 
   #===========================================================================
   # Helper functions
   #===========================================================================
 
+  def shutdown_gracefully_after_timeout(timeout \\ 10) do
+    :timer.apply_after(timeout, This, :shutdown_gracefully, [self()])
+  end
 
+  def shutdown_gracefully(pid), do: GenStage.async_notify(pid, {:producer, :done})
 
 end

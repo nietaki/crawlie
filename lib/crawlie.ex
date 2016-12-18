@@ -1,6 +1,5 @@
 defmodule Crawlie do
 
-  alias Experimental.GenStage
   alias Experimental.Flow
 
   alias Crawlie.Options
@@ -51,9 +50,9 @@ defmodule Crawlie do
       |> Flow.map(fn(%Page{url: url}) ->
         url
       end)
-      |> Flow.map(fn(url) -> {url, elem(client.get(url, options), 1)} end)
-      |> Flow.map(fn({url, body}) -> parser_logic.parse(url, body) end)
-      |> Flow.flat_map(&parser_logic.extract_data(&1))
+      |> Flow.map(fn url -> {url, elem(client.get(url, options), 1)} end)
+      |> Flow.map(fn {url, body} -> {url, parser_logic.parse(url, body)} end)
+      |> Flow.flat_map(fn {url, parsed} -> parser_logic.extract_data(url, parsed) end)
   end
 
 end
