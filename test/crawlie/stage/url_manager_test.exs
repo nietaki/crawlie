@@ -13,6 +13,9 @@ defmodule Crawlie.Stage.UrlManagerTest do
   @pages @urls |> Enum.map(&Page.new(&1))
   @options [foo: :bar]
 
+  #---------------------------------------------------------------------------
+  # testing State
+  #---------------------------------------------------------------------------
   describe "state" do
     test "constructor" do
       state = State.new(@pages, @options)
@@ -30,7 +33,7 @@ defmodule Crawlie.Stage.UrlManagerTest do
       h = Heap.push(h, Page.new("h2", 2))
       h = Heap.push(h, Page.new("h3", 3))
 
-      state = State.new(@pages)
+      state = State.new(@pages, [])
       state = %State{state | discovered: h}
 
       {new_state, pages} = State.take_pages(state, 2)
@@ -50,7 +53,7 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
       h = Heap.push(h, Page.new("h1", 1))
 
-      state = State.new(@pages)
+      state = State.new(@pages, [])
       state = %State{state | discovered: h}
 
       {new_state, pages} = State.take_pages(state, 2)
@@ -66,7 +69,7 @@ defmodule Crawlie.Stage.UrlManagerTest do
     end
 
     test "take_pages handles the case where everything gets empty" do
-      state = State.new(@pages)
+      state = State.new(@pages, [])
 
       {new_state, pages} = State.take_pages(state, 66)
       assert Enum.sort(pages) == Enum.sort(@pages)
@@ -75,7 +78,23 @@ defmodule Crawlie.Stage.UrlManagerTest do
       assert new_state.options == state.options
       # TODO: visited
     end
+
+    test "add_pages/2" do
+      state = State.new(@pages, [max_depth: 5, max_retries: 3])
+      p1 = %Page{url: "foo", depth: 5, retries: 3}
+      p2 = %Page{url: "bar", depth: 6, retries: 0}
+      p3 = %Page{url: "bar", depth: 1, retries: 4}
+
+      new_state = State.add_pages(state, [p1, p2, p3])
+
+      assert Heap.size(new_state.discovered) == 1
+      assert Heap.root(new_state.discovered) == p1
+    end
   end
+
+  #---------------------------------------------------------------------------
+  # Testing Manager
+  #---------------------------------------------------------------------------
 
   test "init/1" do
     args = %{pages: @pages, crawlie_options: @options}

@@ -28,7 +28,7 @@ defmodule CrawlieTest do
     end
 
     def extract_links(_url, _processed, _options) do
-      # TODO with links
+      []
     end
 
     def extract_data(_url, processed, _options) do
@@ -66,6 +66,48 @@ defmodule CrawlieTest do
     ret = Crawlie.crawl(urls, DefaultParserLogic, opts)
 
     assert Enum.to_list(ret) == ["https://foo.bar/ body"]
+  end
+
+  defmodule LinkExtractingLogic do
+    @behaviour Crawlie.ParserLogic
+
+    def parse(url, _body, _options) do
+      url
+    end
+
+    def extract_links(_url, parsed, _options) do
+      [parsed <> "0", parsed <> "1"]
+    end
+
+    def extract_data(_url, parsed, _options) do
+      [parsed]
+    end
+
+  end
+
+  test "recursive traversal - url extraction" do
+    opts = Options.with_mock_client([max_depth: 2])
+    opts = Keyword.put(opts, :mock_client_fun, MockClient.return_url)
+
+    urls = ["foo", "bar"]
+    ret = Crawlie.crawl(urls, LinkExtractingLogic, opts)
+
+    assert Enum.sort(ret) == Enum.sort([
+      "foo", #0
+      "foo0", #1
+      "foo1",
+      "foo00", #2
+      "foo01",
+      "foo10",
+      "foo11",
+      "bar", #0
+      "bar0", #1
+      "bar1",
+      "bar00", #2
+      "bar01",
+      "bar10",
+      "bar11",
+    ])
   end
 
 end

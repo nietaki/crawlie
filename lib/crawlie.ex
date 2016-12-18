@@ -34,16 +34,7 @@ defmodule Crawlie do
   def crawl(source, parser_logic, options \\ []) do
     options = Options.with_defaults(options)
 
-    # results = source
-    #   |> Stream.map(&client.get(&1, options))
-    #   |> Stream.map(&elem(&1, 1))
-    #   |> Stream.map(&parser_logic.parse("fake_url", &1))
-    #   |> Stream.flat_map(&parser_logic.extract_data(&1))
-
-    # {:ok, url_stage} = GenStage.from_enumerable(source)
-    {:ok, url_stage} = UrlManager.start_link(source)
-
-    # results = GenStage.stream([url_stage])
+    {:ok, url_stage} = UrlManager.start_link(source, options)
 
     url_stage
       |> Flow.from_stage(options)
@@ -77,8 +68,10 @@ defmodule Crawlie do
 
   @spec extract_links_operation({Page.t, term}, Keyword.t, module, GenStage.stage) :: any
   @doc false
-  def extract_links_operation({%Page{url: url}, parsed}, options, module, _url_stage) do
-    module.extract_links(url, parsed, options)
+  def extract_links_operation({%Page{url: url} = page, parsed}, options, module, url_stage) do
+    pages = module.extract_links(url, parsed, options)
+      |> Enum.map(&Page.child(page, &1))
+    UrlManager.add_pages(url_stage, pages)
     nil
   end
 

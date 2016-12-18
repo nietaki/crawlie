@@ -1,13 +1,13 @@
 defmodule Crawlie.ParserLogic do
 
-  @type processed :: term
+  @type parsed :: term
   @type result :: term
 
-  @callback parse(url :: String.t, body :: String.t, options :: Keyword.t) :: processed
+  @callback parse(url :: String.t, body :: String.t, options :: Keyword.t) :: parsed
 
-  @callback extract_links(url :: String.t, processed, options :: Keyword.t) :: [String.t]
+  @callback extract_links(url :: String.t, parsed, options :: Keyword.t) :: [String.t]
 
-  @callback extract_data(url :: String.t, processed, options :: Keyword.t) :: [result]
+  @callback extract_data(url :: String.t, parsed, options :: Keyword.t) :: [result]
 
   @doc false
   defmacro __using__(_) do
@@ -21,7 +21,7 @@ defmodule Crawlie.ParserLogic do
       def extract_links(_url, _, _options), do: []
 
       @doc false
-      def extract_data(_url, processed, _options), do: [processed]
+      def extract_data(_url, parsed, _options), do: [parsed]
 
       defoverridable [parse: 3, extract_links: 3, extract_data: 3]
     end

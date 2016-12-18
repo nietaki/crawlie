@@ -15,6 +15,9 @@ defmodule Crawlie.Options do
       http_client: Crawlie.HttpClient.HTTPoisonClient,
       min_demand: 5,
       max_demand: 10,
+      url_manager_timeout: 100,
+      max_depth: 0,
+      max_retries: 3,
     ]
   end
 
