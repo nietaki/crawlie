@@ -10,7 +10,12 @@ defmodule Crawlie.Options do
   `Crawlie.crawl/3`, they will override the defaults.
   """
   def defaults() do
-    [follow_redirect: true, http_client: Crawlie.HttpClient.HTTPoisonClient]
+    [
+      follow_redirect: true,
+      http_client: Crawlie.HttpClient.HTTPoisonClient,
+      min_demand: 5,
+      max_demand: 10,
+    ]
   end
 
 

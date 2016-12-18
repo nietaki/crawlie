@@ -16,8 +16,10 @@ defmodule Crawlie.Page do
   - `:retries` - url fetch retry count. If the fetching of the url never failed before, `0`.
   """
   @type t :: %This{
-    url: String.t,
+    # the depth key should have the alphabetically lowest key in the struct so that
+    # it is used in comparisons in the heap
     depth: integer,
+    url: String.t,
     retries: integer
   }
   defstruct [
@@ -25,4 +27,16 @@ defmodule Crawlie.Page do
     depth: 0,
     retries: 0,
   ]
+
+  #===========================================================================
+  # API Functions
+  #===========================================================================
+
+  @spec new(String.t, integer) :: This.t
+  @doc """
+  Creates a new `Crawlie.Page` struct from the url
+  """
+  def new(url, depth \\ 0) when is_binary(url) and is_integer(depth),
+    do: %This{url: url, depth: depth}
+
 end

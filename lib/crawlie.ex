@@ -1,10 +1,14 @@
 defmodule Crawlie do
 
   alias Experimental.GenStage
+  alias Experimental.Flow
+
   alias Crawlie.Options
+  alias Crawlie.Page
+  alias Crawlie.Stage.UrlManager
 
 
-  @spec crawl(Stream.t, module, Keyword.t) :: Stream.t
+  @spec crawl(Stream.t, module, Keyword.t) :: Flow.t
   @doc """
   Crawls the urls provided in `source`, using the `Crawlie.ParserLogic` provided
   in `parser_logic`.
@@ -12,6 +16,12 @@ defmodule Crawlie do
   The `options` are used to tweak the crawler's behaviour. You can use most of
   the options for [HttPoison](https://hexdocs.pm/httpoison/HTTPoison.html#request/5),
   as well as Crawlie specific options.
+
+
+  ## arguments
+  - `source` - a `Stream` or an `Enum` containing the urls to crawl
+  - `parser_logic`-  a `Crawlie.ParserLogic` behaviour implementation
+  - `options` - options
 
   ## Crawlie options
 
@@ -31,11 +41,19 @@ defmodule Crawlie do
     #   |> Stream.map(&parser_logic.parse("fake_url", &1))
     #   |> Stream.flat_map(&parser_logic.extract_data(&1))
 
-    {:ok, url_stage} = GenStage.from_enumerable(source)
+    # {:ok, url_stage} = GenStage.from_enumerable(source)
+    {:ok, url_stage} = UrlManager.start_link(source)
 
-    results = GenStage.stream([url_stage])
+    # results = GenStage.stream([url_stage])
 
-    results
+    url_stage
+      |> Flow.from_stage(options)
+      |> Flow.map(fn(%Page{url: url}) ->
+        url
+      end)
+      |> Flow.map(fn(url) -> {url, elem(client.get(url, options), 1)} end)
+      |> Flow.map(fn({url, body}) -> parser_logic.parse(url, body) end)
+      |> Flow.flat_map(&parser_logic.extract_data(&1))
   end
 
 end

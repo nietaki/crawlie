@@ -13,8 +13,7 @@ See the [crawlie_example](https://github.com/nietaki/crawlie_example) project.
 Crawlie uses Elixir's [GenStage](https://github.com/elixir-lang/gen_stage) to parallelise
 the work. In the system there are 3 kinds of stages:
 
-- **UrlManager** - consumes the url collection passed by the user, receives the urls extracted by the workers, makes sure no url is processed more than once, makes sure that the "pending urls" collection
-is as small as possible by traversing the url tree in a roughly depth-first manner.
+- **UrlManager** - consumes the url collection passed by the user, receives the urls extracted by the workers, makes sure no url is processed more than once, makes sure that the "discovered urls" collection is as small as possible by traversing the url tree in a roughly depth-first manner.
 - **Worker** - Fetches the url, extracts information from the response and passes
 the extracted links back to the UrlManager and the retrieved information to the Collector.
 - **Collector** - collects the information retrieved by workers and produces the output

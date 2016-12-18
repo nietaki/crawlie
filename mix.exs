@@ -53,6 +53,7 @@ defmodule Crawlie.Mixfile do
     [
       {:gen_stage, "~> 0.10.0"},
       {:httpoison, "~> 0.10.0"},
+      {:heap, "~> 1.0.1"},
       # testing and documentation
       {:ex_doc, "~> 0.14.3", only: :dev},
       {:inch_ex, "~> 0.5.5", only: :dev},
