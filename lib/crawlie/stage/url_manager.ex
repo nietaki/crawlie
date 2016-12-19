@@ -8,19 +8,22 @@ defmodule Crawlie.Stage.UrlManager do
 
   defmodule State do
     @type t :: %State{
+      # incoming
       initial: Enum.t, # pages provided by the user
       discovered: Heap.t, # pages discovered while crawling
-      visited: Map.t, # url -> retry count
-      options: Keyword.t,
+
+      # current
       pending_demand: integer,
+
+      #others
       shutdown_tref: term,
+      options: Keyword.t,
     }
 
-    @enforce_keys [:initial, :discovered, :visited, :options]
+    @enforce_keys [:initial, :discovered, :options]
     defstruct [
       :initial,
       :discovered,
-      :visited,
       :options,
       pending_demand: 0,
       shutdown_tref: nil
@@ -31,7 +34,6 @@ defmodule Crawlie.Stage.UrlManager do
       %State{
         initial: initial_pages,
         discovered: Heap.max(),
-        visited: %{},
         options: options,
       }
     end
@@ -74,8 +76,6 @@ defmodule Crawlie.Stage.UrlManager do
           {%State{state | initial: Enum.drop(initial, 1)}, page}
         true -> {state, nil}
       end
-
-      # TODO adding the pages to visited.
 
       case page do
         nil -> {state, acc}
@@ -148,7 +148,7 @@ defmodule Crawlie.Stage.UrlManager do
   def shutdown_gracefully_after_timeout(state) do
     timeout = Keyword.get(state.options, :url_manager_timeout)
     state = cancel_shutdown_timeout(state)
-    tref = :timer.apply_after(timeout, This, :shutdown_gracefully, [self()])
+    {:ok, tref} = :timer.apply_after(timeout, This, :shutdown_gracefully, [self()])
     %State{state | shutdown_tref: tref}
   end
 
@@ -156,8 +156,9 @@ defmodule Crawlie.Stage.UrlManager do
   def shutdown_gracefully(pid), do: GenStage.async_notify(pid, {:producer, :done})
 
 
+  def cancel_shutdown_timeout(%State{shutdown_tref: nil} = state), do: state
   def cancel_shutdown_timeout(%State{shutdown_tref: tref} = state) do
-    :timer.cancel(tref)
+    {:ok, :cancel} = :timer.cancel(tref)
     %State{state | shutdown_tref: nil}
   end
 

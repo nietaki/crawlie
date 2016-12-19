@@ -22,7 +22,6 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
       assert state.initial == @pages
       assert state.discovered == Heap.max()
-      assert state.visited == %{}
       assert state.options == @options
     end
 
@@ -102,7 +101,6 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     assert state.initial == @pages
     assert state.discovered == Heap.max()
-    assert state.visited == %{}
     assert state.options == @options
   end
 
