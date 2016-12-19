@@ -15,12 +15,21 @@ defmodule Crawlie.Options do
       http_client: Crawlie.HttpClient.HTTPoisonClient,
       min_demand: 5,
       max_demand: 10,
+      stages: 16,
       url_manager_timeout: 50,
       max_depth: 0,
       max_retries: 3,
     ]
   end
 
+
+  def partition_options() do
+    [
+      :min_demand,
+      :max_demand,
+      :stages,
+    ]
+  end
 
   @spec with_defaults(Keyword.t) :: Keyword.t
   @doc """

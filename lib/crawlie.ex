@@ -47,8 +47,11 @@ defmodule Crawlie do
 
     {:ok, url_stage} = UrlManager.start_link(source, options)
 
+    partition_options = Keyword.take(options, Options.partition_options)
+
     url_stage
       |> Flow.from_stage(options)
+      |> Flow.partition(partition_options)
       |> Flow.flat_map(&fetch_operation(&1, options, url_stage))
       |> Flow.flat_map(&parse_operation(&1, options, parser_logic))
       |> Flow.each(&extract_links_operation(&1, options, parser_logic, url_stage))
