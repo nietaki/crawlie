@@ -16,6 +16,7 @@ defmodule Crawlie.Stage.UrlManager do
 
       # current
       pending_demand: integer,
+      visited: MapSet.t,
 
       #others
       shutdown_tref: term,
@@ -27,6 +28,7 @@ defmodule Crawlie.Stage.UrlManager do
       :initial,
       :discovered,
       :options,
+      visited: MapSet.new,
       pending_demand: 0,
       shutdown_tref: nil
     ]
@@ -83,9 +85,18 @@ defmodule Crawlie.Stage.UrlManager do
         true -> {state, nil}
       end
 
-      case page do
-        nil -> {state, acc}
-        page -> _take_pages(state, count - 1, [page | acc])
+      if page == nil do
+        {state, acc}
+      else
+        already_visited = MapSet.member?(state.visited, page.url)
+        case {page, already_visited} do
+          {%Page{retries: 0}, true} ->
+            # if retries > 0, it doesn't matter if the page was visited before, we're just retrying
+            _take_pages(state, count, acc)
+          {page, _} ->
+            visited = MapSet.put(state.visited, page.url)
+            _take_pages(%State{state | visited: visited}, count - 1, [page | acc])
+        end
       end
     end
 
