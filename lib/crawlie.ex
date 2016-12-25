@@ -49,7 +49,9 @@ defmodule Crawlie do
 
     url_stage
       |> Flow.from_stage(options)
+      |> Flow.partition(Keyword.get(options, :fetch_phase))
       |> Flow.flat_map(&fetch_operation(&1, options, url_stage))
+      |> Flow.partition(Keyword.get(options, :process_phase))
       |> Flow.flat_map(&parse_operation(&1, options, parser_logic))
       |> Flow.each(&extract_links_operation(&1, options, parser_logic, url_stage))
       |> Flow.flat_map(&extract_data_operation(&1, options, parser_logic))
