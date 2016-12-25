@@ -1,7 +1,7 @@
 defmodule Crawlie.Mixfile do
   use Mix.Project
 
-  @version "0.2.0-alpha1"
+  @version "0.2.0-alpha2"
 
   def project do
     [

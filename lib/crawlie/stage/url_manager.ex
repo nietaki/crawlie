@@ -6,6 +6,8 @@ defmodule Crawlie.Stage.UrlManager do
 
   use GenStage
 
+  require Logger
+
   defmodule State do
     @type t :: %State{
       # incoming
@@ -48,11 +50,15 @@ defmodule Crawlie.Stage.UrlManager do
       max_depth = Keyword.get(state.options, :max_depth)
       max_retries = Keyword.get(state.options, :max_retries)
 
-      if depth <= max_depth and retries <= max_retries do
-        discovered = Heap.push(discovered, page)
-        %State{state | discovered: discovered}
-      else
-        state
+      case {depth <= max_depth, retries <= max_retries} do
+        {true, true} ->
+          discovered = Heap.push(discovered, page)
+          %State{state | discovered: discovered}
+        {_, false} ->
+          Logger.warn("After #{page.retries} retries, failed to fetch #{page.url}.")
+          state
+        {_, _} ->
+          state
       end
     end
 
