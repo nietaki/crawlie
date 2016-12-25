@@ -27,20 +27,27 @@ defmodule Crawlie do
   ## arguments
   - `source` - a `Stream` or an `Enum` containing the urls to crawl
   - `parser_logic`-  a `Crawlie.ParserLogic` behaviour implementation
-  - `options` - options
+  - `options` - a Keyword List of options
 
-  ## Crawlie options
+  ## Crawlie specific options
 
   - `:http_client` - module implementing the `Crawlie.HttpClient` behaviour to be
     used to make the requests. If not provided, will default to `Crawlie.HttpClient.HTTPoisonClient`.
   - `:mock_client_fun` - If you're using the `Crawlie.HttpClient.MockClient`, this
     would be the `url -> {:ok, body :: String.t} | {:error, term}` function simulating
     making the requests.
-  - `:min_demand`, `:max_demand` - see [Flow documentation](https://hexdocs.pm/gen_stage/Experimental.Flow.html)
     for details
   - `:max_depth` - maximum crawling "depth". `0` by default.
   - `:max_retries` - maximum amount of tries Crawlie should try to fetch any individual
     page before giving up. By default `3`.
+  - `:fetch_phase` - `Flow` partition configuration for the fetching phase of the crawling `Flow`.
+    It should be a Keyword List containing any subset of `:min_demand`, `:max_demand` and `:stages`
+    properties. For the meaning of these options see [Flow documentation](https://hexdocs.pm/gen_stage/Experimental.Flow.html)
+  - `:process_phase` - same as `:fetch_phase`, but for the processing (page parsing, data and link
+    extraction) part of the process
+  - `:url_manager_timeout` - time in ms the `Crawlie.UrlManager` will wait for new extracted
+    urls from the worker processes before wrapping up the output Flow. Will go away when
+    [#7](https://github.com/nietaki/crawlie/issues/7) is implemented. Defaults to `200`.
   """
   def crawl(source, parser_logic, options \\ []) do
     options = Options.with_defaults(options)
