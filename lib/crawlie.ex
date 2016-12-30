@@ -72,8 +72,7 @@ defmodule Crawlie do
     case client.get(url, options) do
       {:ok, body} -> [{page, body}]
       {:error, _reason} ->
-        retried_page = Page.retry(page)
-        UrlManager.add_pages(url_stage, [retried_page])
+        UrlManager.retry_page(url_stage, page)
         []
     end
   end
@@ -99,7 +98,7 @@ defmodule Crawlie do
     if depth < max_depth do
       pages = module.extract_links(url, parsed, options)
         |> Enum.map(&Page.child(page, &1))
-      UrlManager.add_pages(url_stage, pages)
+      UrlManager.add_children_pages(url_stage, pages)
     end
 
     nil

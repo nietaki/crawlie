@@ -8,6 +8,10 @@ defmodule Crawlie.Stage.UrlManager do
 
   require Logger
 
+  #===========================================================================
+  # State
+  #===========================================================================
+
   defmodule State do
     @type t :: %State{
       # incoming
@@ -105,7 +109,7 @@ defmodule Crawlie.Stage.UrlManager do
   end
 
   #===========================================================================
-  # API Functions
+  # Manager - API Functions
   #===========================================================================
 
   @spec start_link(Stream.t, Keyword.t) :: {:ok, GenStage.stage}
@@ -120,7 +124,14 @@ defmodule Crawlie.Stage.UrlManager do
   end
 
 
-  def add_pages(url_manager_stage, pages) when is_list(pages) do
+  def add_children_pages(url_manager_stage, pages), do: add_pages(url_manager_stage, pages)
+
+  def retry_page(url_manager_stage, failed_page) do
+    page = Page.retry(failed_page)
+    add_pages(url_manager_stage, [page])
+  end
+
+  defp add_pages(url_manager_stage, pages) when is_list(pages) do
     GenStage.cast(url_manager_stage, {:add_pages, pages})
   end
 
