@@ -52,15 +52,17 @@ defmodule Crawlie.Stage.UrlManager do
       max_depth = Keyword.get(state.options, :max_depth)
       max_retries = Keyword.get(state.options, :max_retries)
 
-      case {depth <= max_depth, retries <= max_retries} do
-        {true, true} ->
+      if depth > max_depth do
+        Logger.error "Trying to add a page #{inspect page.url} with 'depth' > max_depth: #{depth}"
+        state
+      else
+        if retries <= max_retries do
           discovered = Heap.push(discovered, page)
           %State{state | discovered: discovered}
-        {_, false} ->
+        else
           Logger.warn("After #{page.retries} retries, failed to fetch #{page.url}.")
           state
-        {_, _} ->
-          state
+        end
       end
     end
 

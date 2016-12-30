@@ -94,10 +94,14 @@ defmodule Crawlie do
 
   @spec extract_links_operation({Page.t, term}, Keyword.t, module, GenStage.stage) :: any
   @doc false
-  def extract_links_operation({%Page{url: url} = page, parsed}, options, module, url_stage) do
-    pages = module.extract_links(url, parsed, options)
-      |> Enum.map(&Page.child(page, &1))
-    UrlManager.add_pages(url_stage, pages)
+  def extract_links_operation({%Page{url: url, depth: depth} = page, parsed}, options, module, url_stage) do
+    max_depth = Keyword.get(options, :max_depth, 0)
+    if depth < max_depth do
+      pages = module.extract_links(url, parsed, options)
+        |> Enum.map(&Page.child(page, &1))
+      UrlManager.add_pages(url_stage, pages)
+    end
+
     nil
   end
 

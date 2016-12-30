@@ -1,5 +1,6 @@
 defmodule Crawlie.Stage.UrlManagerTest do
   use ExUnit.Case
+  import ExUnit.CaptureLog
 
   alias Heap
 
@@ -44,7 +45,6 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     assert Heap.size(new_state.discovered) == 1
     assert Heap.root(new_state.discovered) == Page.new("h1", 1)
-    # TODO: visited
   end
 
   test "take_pages takes the pages from both the heap and initial" do
@@ -63,7 +63,6 @@ defmodule Crawlie.Stage.UrlManagerTest do
     assert new_state.options == state.options
 
     assert Heap.size(new_state.discovered) == 0
-    # TODO: visited
   end
 
   test "take_pages handles the case where everything gets empty" do
@@ -74,7 +73,6 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     assert new_state.initial == []
     assert new_state.options == state.options
-    # TODO: visited
   end
 
   test "add_pages/2" do
@@ -83,10 +81,12 @@ defmodule Crawlie.Stage.UrlManagerTest do
     p2 = %Page{url: "bar", depth: 6, retries: 0}
     p3 = %Page{url: "bar", depth: 1, retries: 4}
 
-    new_state = State.add_pages(state, [p1, p2, p3])
+    assert capture_log(fn ->
+      new_state = State.add_pages(state, [p1, p2, p3])
 
-    assert Heap.size(new_state.discovered) == 1
-    assert Heap.root(new_state.discovered) == p1
+      assert Heap.size(new_state.discovered) == 1
+      assert Heap.root(new_state.discovered) == p1
+    end) =~ "[error] Trying to add a page \"bar\" with 'depth' > max_depth:"
   end
 
   test "adding a page that was retrieved before doesn't make it fetched again" do
