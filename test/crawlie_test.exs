@@ -147,10 +147,26 @@ defmodule CrawlieTest do
     assert Enum.to_list(ret) == []
   end
 
-  @tag skip: true
   test "any page is visited no more than once" do
-    # TODO
-    assert false
+    opts = Options.with_mock_client(test_opts ++ [max_depth: 2])
+    opts = Keyword.put(opts, :mock_client_fun, MockClient.return_url)
+
+    urls = ["foo", "foo1"]
+    ret = Crawlie.crawl(urls, LinkExtractingLogic, opts)
+
+    assert Enum.sort(ret) == Enum.sort([
+      "foo",
+      "foo0",
+      "foo1",
+      "foo00",
+      "foo01",
+      "foo10",
+      "foo11",
+      "foo100",
+      "foo101",
+      "foo110",
+      "foo111",
+    ])
   end
 
   #---------------------------------------------------------------------------

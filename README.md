@@ -24,7 +24,8 @@ See [the docs](https://hexdocs.pm/crawlie/Crawlie.html#crawl/3) for supported op
 
 ## Planned features
 
-`TODO`
+- Easier limiting the crawling to a (sub)domain
+- Option of respecting `robots.txt` of the websites (on by default)
 
 ## Installation
 
