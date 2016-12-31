@@ -1,7 +1,15 @@
 defmodule Crawlie.Mixfile do
   use Mix.Project
 
-  @version "0.2.0"
+  # VERSION BUMPING CHECKLIST
+  # - update CHANGELOG, with GitHub Issues along other things
+  # - update the version here
+  # - update "Installation" section in the README with the new version
+  # - check if README is outdated
+  # - make sure there's no obviously missing docs
+  # - build and publish the hex package
+  @version "0.3.0"
+
 
   def project do
     [

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0 (2016-12-31)
+
+Enhancements:
+- No longer extracting the links on pages that are on `max_depth` depth -  [#4](https://github.com/nietaki/crawlie/issues/4)
+- Keeping track of urls that remain to be crawled to know when to wrap up the crawling `Flow` -  [#7](https://github.com/nietaki/crawlie/issues/7)
+
+Happy New Year!
+
 ## v0.2.0 (2016-12-25)
 
 Url deduplication implemented. Tweaking performance with Flow partition options.
