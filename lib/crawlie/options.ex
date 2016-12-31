@@ -13,7 +13,6 @@ defmodule Crawlie.Options do
     [
       follow_redirect: true,
       http_client: Crawlie.HttpClient.HTTPoisonClient,
-      url_manager_timeout: 200,
       max_depth: 0,
       max_retries: 3,
       fetch_phase: [

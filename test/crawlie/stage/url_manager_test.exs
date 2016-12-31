@@ -18,12 +18,16 @@ defmodule Crawlie.Stage.UrlManagerTest do
   # testing State
   #---------------------------------------------------------------------------
   test "constructor" do
+    empty = State.new([], @options)
+    assert State.finished_crawling?(empty) == true
+
     state = State.new(@pages, @options)
 
     assert state.initial == @pages
     assert state.discovered == Heap.max()
     assert state.options == @options
     assert state.visited == MapSet.new()
+    assert State.finished_crawling?(state) == false
   end
 
   test "take_pages takes the pages from the heap if available" do
@@ -35,6 +39,7 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     state = State.new(@pages, [])
     state = %State{state | discovered: h}
+    assert State.finished_crawling?(state) == false
 
     {new_state, pages} = State.take_pages(state, 2)
     assert Enum.count(pages) == 2
@@ -45,6 +50,7 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     assert Heap.size(new_state.discovered) == 1
     assert Heap.root(new_state.discovered) == Page.new("h1", 1)
+    assert State.finished_crawling?(new_state) == false
   end
 
   test "take_pages takes the pages from both the heap and initial" do
@@ -73,6 +79,17 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     assert new_state.initial == []
     assert new_state.options == state.options
+    refute State.finished_crawling?(new_state)
+
+    state = new_state
+    [a, b, c] = @pages
+
+    state = State.finished_processing(state, a.url)
+    refute State.finished_crawling?(state)
+    state = State.finished_processing(state, b.url)
+    refute State.finished_crawling?(state)
+    state = State.finished_processing(state, c.url)
+    assert State.finished_crawling?(state)
   end
 
   test "add_pages/2" do
@@ -110,6 +127,23 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     {_state, pages} = State.take_pages(state, 10)
     assert Enum.sort(pages) == Enum.sort(Enum.map(["foo", "bar", "baz", "ban"], &Page.new/1))
+  end
+
+  test "tracks items in-flight" do
+    empty = State.new([], @options)
+    assert State.finished_crawling?(empty)
+
+    state = State.started_processing(empty, "foo")
+    refute State.finished_crawling?(state)
+
+    state = State.started_processing(state, "bar")
+    refute State.finished_crawling?(state)
+
+    state = State.finished_processing(state, "bar")
+    refute State.finished_crawling?(state)
+
+    state = State.finished_processing(state, "foo")
+    assert State.finished_crawling?(state)
   end
 
   #---------------------------------------------------------------------------
