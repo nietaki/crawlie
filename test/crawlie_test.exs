@@ -7,7 +7,6 @@ defmodule CrawlieTest do
 
   doctest Crawlie
 
-  @moduletag timeout: 1000
 
   test "with default parser logic and a mock client" do
     opts = Options.with_mock_client(test_opts)

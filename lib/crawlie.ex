@@ -45,9 +45,6 @@ defmodule Crawlie do
     properties. For the meaning of these options see [Flow documentation](https://hexdocs.pm/gen_stage/Experimental.Flow.html)
   - `:process_phase` - same as `:fetch_phase`, but for the processing (page parsing, data and link
     extraction) part of the process
-  - `:url_manager_timeout` - time in ms the `Crawlie.UrlManager` will wait for new extracted
-    urls from the worker processes before wrapping up the output Flow. Will go away when
-    [#7](https://github.com/nietaki/crawlie/issues/7) is implemented. Defaults to `200`.
   """
   def crawl(source, parser_logic, options \\ []) do
     options = Options.with_defaults(options)
@@ -59,7 +56,7 @@ defmodule Crawlie do
       |> Flow.partition(Keyword.get(options, :fetch_phase))
       |> Flow.flat_map(&fetch_operation(&1, options, url_stage))
       |> Flow.partition(Keyword.get(options, :process_phase))
-      |> Flow.flat_map(&parse_operation(&1, options, parser_logic))
+      |> Flow.flat_map(&parse_operation(&1, options, parser_logic, url_stage))
       |> Flow.each(&extract_links_operation(&1, options, parser_logic, url_stage))
       |> Flow.flat_map(&extract_data_operation(&1, options, parser_logic))
   end
@@ -70,7 +67,8 @@ defmodule Crawlie do
   def fetch_operation(%Page{url: url} = page, options, url_stage) do
     client = Keyword.get(options, :http_client)
     case client.get(url, options) do
-      {:ok, body} -> [{page, body}]
+      {:ok, body} ->
+        [{page, body}]
       {:error, _reason} ->
         UrlManager.page_failed(url_stage, page)
         []
@@ -78,13 +76,14 @@ defmodule Crawlie do
   end
 
 
-  @spec parse_operation({Page.t, String.t}, Keyword.t, module) :: [{Page.t, term}]
+  @spec parse_operation({Page.t, String.t}, Keyword.t, module, GenStage.stage) :: [{Page.t, term}]
   @doc false
-  def parse_operation({%Page{url: url} = page, body}, options, parser_logic) when is_binary(body) do
+  def parse_operation({%Page{url: url} = page, body}, options, parser_logic, url_stage) when is_binary(body) do
 
     case parser_logic.parse(url, body, options) do
       {:ok, parsed} -> [{page, parsed}]
       {:error, reason} ->
+        UrlManager.page_failed(url_stage, page)
         Logger.warn "could not parse #{inspect page.url}, parsing failed with error #{inspect reason}"
         []
     end
@@ -101,7 +100,8 @@ defmodule Crawlie do
       UrlManager.add_children_pages(url_stage, pages)
     end
 
-    nil
+    UrlManager.page_succeeded(url_stage, page)
+    :ok
   end
 
 
