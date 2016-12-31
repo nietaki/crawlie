@@ -72,7 +72,7 @@ defmodule Crawlie do
     case client.get(url, options) do
       {:ok, body} -> [{page, body}]
       {:error, _reason} ->
-        UrlManager.retry_page(url_stage, page)
+        UrlManager.page_failed(url_stage, page)
         []
     end
   end

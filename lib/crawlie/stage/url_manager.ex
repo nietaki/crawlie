@@ -21,6 +21,7 @@ defmodule Crawlie.Stage.UrlManager do
       # current
       pending_demand: integer,
       visited: MapSet.t,
+      in_flight: MapSet.t, # urls currently being processed by the rest of the flow
 
       #others
       shutdown_tref: term,
@@ -33,6 +34,7 @@ defmodule Crawlie.Stage.UrlManager do
       :discovered,
       :options,
       visited: MapSet.new,
+      in_flight: MapSet.new,
       pending_demand: 0,
       shutdown_tref: nil
     ]
@@ -94,18 +96,58 @@ defmodule Crawlie.Stage.UrlManager do
       if page == nil do
         {state, acc}
       else
-        already_visited = MapSet.member?(state.visited, page.url)
-        case {page, already_visited} do
+        case {page, State.visited?(state, page.url)} do
           {%Page{retries: 0}, true} ->
             # if retries > 0, it doesn't matter if the page was visited before, we're just retrying
             _take_pages(state, count, acc)
           {page, _} ->
-            visited = MapSet.put(state.visited, page.url)
-            _take_pages(%State{state | visited: visited}, count - 1, [page | acc])
+            state = state
+              |> State.visit(page.url)
+              |> State.started_processing(page.url)
+            _take_pages(state, count - 1, [page | acc])
         end
       end
     end
 
+    @spec visit(State.t, String.t) :: State.t
+    @doc """
+    Marks the url as "already visited" in the state
+    """
+    def visit(%State{visited: visited} = state, url) do
+      visited = MapSet.put(visited, url)
+      %State{state | visited: visited}
+    end
+
+
+    @spec visited?(State.t, String.t) :: boolean
+    @doc """
+    Checks if the url was already visited by the crawler
+    """
+    def visited?(%State{visited: visited} = state, url) do
+      MapSet.member?(visited, url)
+    end
+
+
+    @spec started_processing(State.t, String.t) :: State.t
+    def started_processing(%State{in_flight: in_flight} = state, url) when is_binary(url) do
+      in_flight = MapSet.put(in_flight, url)
+      %State{state | in_flight: in_flight}
+    end
+
+
+    @spec finished_processing(State.t, String.t):: State.t
+    def finished_processing(%State{in_flight: in_flight} = state, url) when is_binary(url) do
+      in_flight = MapSet.delete(in_flight, url)
+      %State{state | in_flight: in_flight}
+    end
+
+
+    @spec finished_crawling?(State.t) :: boolean
+    def finished_crawling?(%State{initial: initial, discovered: discovered, in_flight: in_flight}) do
+      Enum.empty?(in_flight) and
+        Heap.empty?(discovered) and
+        Enum.empty?(initial)
+    end
   end
 
   #===========================================================================
@@ -126,7 +168,7 @@ defmodule Crawlie.Stage.UrlManager do
 
   def add_children_pages(url_manager_stage, pages), do: add_pages(url_manager_stage, pages)
 
-  def retry_page(url_manager_stage, failed_page) do
+  def page_failed(url_manager_stage, failed_page) do
     page = Page.retry(failed_page)
     add_pages(url_manager_stage, [page])
   end
