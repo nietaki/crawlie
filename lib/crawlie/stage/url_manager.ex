@@ -1,7 +1,8 @@
 defmodule Crawlie.Stage.UrlManager do
   alias Experimental.GenStage
+  alias Crawlie.Options
   alias Crawlie.Page
-  alias Heap
+  alias Crawlie.PqueueWrapper, as: PriorityQueue
   alias __MODULE__, as: This
 
   use GenStage
@@ -16,7 +17,7 @@ defmodule Crawlie.Stage.UrlManager do
     @type t :: %State{
       # incoming
       initial: Enum.t, # pages provided by the user
-      discovered: Heap.t, # pages discovered while crawling
+      discovered: PriorityQueue.t, # pages discovered while crawling
 
       # current
       pending_demand: integer,
@@ -39,9 +40,10 @@ defmodule Crawlie.Stage.UrlManager do
 
     @spec new(Enum.t, Keyword.t) :: State.t
     def new(initial_pages, options) do
+      pqueue_module = Options.get_pqueue_module(options)
       %State{
         initial: initial_pages,
-        discovered: Heap.max(),
+        discovered: PriorityQueue.new(pqueue_module),
         options: options,
       }
     end
@@ -61,7 +63,7 @@ defmodule Crawlie.Stage.UrlManager do
         state
       else
         if retries <= max_retries do
-          discovered = Heap.push(discovered, page)
+          discovered = PriorityQueue.add_page(discovered, page)
           %State{state | discovered: discovered}
         else
           Logger.warn("After #{page.retries} retries, failed to fetch #{page.url}.")
@@ -80,10 +82,9 @@ defmodule Crawlie.Stage.UrlManager do
     defp _take_pages(state, count, acc) when count <= 0, do: {state, acc}
     defp _take_pages(state, count, acc) do
       {state, page} = cond do
-        !Heap.empty?(state.discovered) ->
-          discovered = state.discovered
-          page = Heap.root(discovered)
-          {%State{state | discovered: Heap.pop(discovered)}, page}
+        !PriorityQueue.empty?(state.discovered) ->
+          {discovered, page} = PriorityQueue.take(state.discovered)
+          {%State{state | discovered: discovered}, page}
         !Enum.empty?(state.initial) ->
           initial = state.initial
           [page] = Enum.take(initial, 1)
@@ -143,7 +144,7 @@ defmodule Crawlie.Stage.UrlManager do
     @spec finished_crawling?(State.t) :: boolean
     def finished_crawling?(%State{initial: initial, discovered: discovered, in_flight: in_flight}) do
       Enum.empty?(in_flight) and
-        Heap.empty?(discovered) and
+        PriorityQueue.empty?(discovered) and
         Enum.empty?(initial)
     end
   end

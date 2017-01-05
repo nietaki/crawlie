@@ -1,5 +1,10 @@
 defmodule Crawlie.PqueueWrapper do
 
+  @moduledoc """
+  Wraps the Erlang :pqueue, :pqueue2, :pqueue3 and :pqueue4 modules
+  functionality for easier use in Elixir and easier swapping of the implementations
+  """
+
   alias __MODULE__, as: This
   alias Crawlie.Page
 
@@ -9,6 +14,7 @@ defmodule Crawlie.PqueueWrapper do
     module: atom,
     data: term,
   }
+  @enforce_keys [:module, :data]
   defstruct [
     :module,
     :data,

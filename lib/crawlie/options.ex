@@ -80,7 +80,7 @@ defmodule Crawlie.Options do
   def get_pqueue_module(options) do
     case Keyword.get(options, :pqueue_module) do
       m when m in @valid_pqueue_modules -> m
-      m -> raise "invalid :pqueue_module set in options: #{m}"
+      m -> raise "invalid :pqueue_module set in options: #{inspect m}"
     end
   end
 
