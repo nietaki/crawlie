@@ -36,7 +36,7 @@ defmodule Crawlie.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison]]
+    [applications: [:logger, :httpoison, :pqueue]]
   end
 
   defp docs do
@@ -62,6 +62,7 @@ defmodule Crawlie.Mixfile do
       {:gen_stage, "~> 0.10.0"},
       {:httpoison, "~> 0.10.0"},
       {:heap, "~> 1.0.1"},
+      {:pqueue, "~> 1.5"},
       # testing and documentation
       {:ex_doc, "~> 0.14.3", only: :dev},
       {:inch_ex, "~> 0.5.5", only: :dev},
