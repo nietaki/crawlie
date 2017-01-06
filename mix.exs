@@ -8,7 +8,7 @@ defmodule Crawlie.Mixfile do
   # - check if README is outdated
   # - make sure there's no obviously missing docs
   # - build and publish the hex package
-  @version "0.3.0"
+  @version "0.3.1"
 
 
   def project do

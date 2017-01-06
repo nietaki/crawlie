@@ -1,10 +1,15 @@
 # Changelog
 
+## v0.3.1 (2017-01-06)
+
+Enhancements:
+- Replacing heap with a priority queue for storing discovered urls - [#9](https://github.com/nietaki/crawlie/issues/9)
+
 ## v0.3.0 (2016-12-31)
 
 Enhancements:
-- No longer extracting the links on pages that are on `max_depth` depth -  [#4](https://github.com/nietaki/crawlie/issues/4)
-- Keeping track of urls that remain to be crawled to know when to wrap up the crawling `Flow` -  [#7](https://github.com/nietaki/crawlie/issues/7)
+- No longer extracting the links on pages that are on `max_depth` depth - [#4](https://github.com/nietaki/crawlie/issues/4)
+- Keeping track of urls that remain to be crawled to know when to wrap up the crawling `Flow` - [#7](https://github.com/nietaki/crawlie/issues/7)
 
 Happy New Year!
 
