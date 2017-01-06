@@ -1,7 +1,8 @@
 defmodule Crawlie.PqueueWrapper do
 
   @moduledoc """
-  Wraps the Erlang :pqueue, :pqueue2, :pqueue3 and :pqueue4 modules
+  Wraps the Erlang [pqueue](https://github.com/okeuday/pqueue)
+  `:pqueue`, `:pqueue2`, `:pqueue3` and `:pqueue4` modules
   functionality for easier use in Elixir and easier swapping of the implementations
   """
 
@@ -27,8 +28,8 @@ defmodule Crawlie.PqueueWrapper do
 
   @spec new(atom) :: This.t
   @doc """
-  Constructs a new PqueueWrapper with `module` as the underlying
-  impelementation.
+  Constructs a new `Crawlie.PqueueWrapper` priority queue with `module` as the
+  underlying impelementation.
   """
   def new(module) when module in @valid_pqueue_modules do
     %This{
@@ -49,7 +50,7 @@ defmodule Crawlie.PqueueWrapper do
 
   @spec empty?(This.t) :: boolean
   @doc """
-  Checks if this Pqueue is empty.
+  Checks if this priority queue is empty.
   """
   def empty?(%This{module: module, data: data}) do
     module.is_empty(data)
@@ -57,6 +58,10 @@ defmodule Crawlie.PqueueWrapper do
 
 
   @spec add_page(This.t, Page.t) :: This.t
+  @doc """
+  Adds a `Crawlie.Page` to this priority queue, treating its `depth` as priority -
+  the bigger the depth, the bigger the priority.
+  """
   def add_page(%This{module: module, data: data} = this, %Page{depth: depth} = page) do
     p = get_priority(this, depth)
     data = module.in(page, p, data)
@@ -65,6 +70,10 @@ defmodule Crawlie.PqueueWrapper do
 
 
   @spec take(This.t) :: {This.t, term}
+  @doc """
+  Takes an element with the highes priority from the priority queue and returns
+  the priority queue without the element and the element itself.
+  """
   def take(%This{module: module, data: data} = this) do
     {{_priority, item}, data} = module.out(data)
     {%This{this | data: data}, item}

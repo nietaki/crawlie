@@ -45,6 +45,11 @@ defmodule Crawlie do
     properties. For the meaning of these options see [Flow documentation](https://hexdocs.pm/gen_stage/Experimental.Flow.html)
   - `:process_phase` - same as `:fetch_phase`, but for the processing (page parsing, data and link
     extraction) part of the process
+  - `:pqueue_module` - One of [pqueue](https://github.com/okeuday/pqueue) implementations:
+    `:pqueue`, `:pqueue2`, `:pqueue3`, `:pqueue4`. Different implementation have different
+    performance characteristics and allow for different `:max_depth` values. Consult
+    [docs](https://github.com/okeuday/pqueue) for details. By default using `:pqueue3` -
+    good performance and allowing arbitrary `:max_depth` values.
   """
   def crawl(source, parser_logic, options \\ []) do
     options = Options.with_defaults(options)
@@ -110,9 +115,5 @@ defmodule Crawlie do
   def extract_data_operation({%Page{url: url}, parsed}, options, module) do
     module.extract_data(url, parsed, options)
   end
-
-
-  def is_ok_tuple({:ok, _}), do: true
-  def is_ok_tuple(_), do: false
 
 end
