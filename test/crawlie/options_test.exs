@@ -16,6 +16,21 @@ defmodule Crawlie.OptionsTest do
     assert true == Keyword.get(defaults, :follow_redirect)
   end
 
+  test "get_pqueue_module" do
+    assert Options.get_pqueue_module([pqueue_module: :pqueue]) == :pqueue
+    assert Options.get_pqueue_module([pqueue_module: :pqueue2]) == :pqueue2
+    assert Options.get_pqueue_module([pqueue_module: :pqueue3]) == :pqueue3
+    assert Options.get_pqueue_module([pqueue_module: :pqueue4]) == :pqueue4
+
+    assert_raise(RuntimeError, fn() ->
+      Options.get_pqueue_module([pqueue_module: :invalid])
+    end)
+
+    assert_raise(RuntimeError, fn() ->
+      Options.get_pqueue_module([])
+    end)
+  end
+
   describe "merge_options" do
     test "doesn't break for empty lists" do
       assert [] == Options.merge([], [])

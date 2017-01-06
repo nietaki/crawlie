@@ -1,5 +1,7 @@
 defmodule Crawlie.Options do
 
+  @valid_pqueue_modules [:pqueue, :pqueue2, :pqueue3, :pqueue4]
+
   #===========================================================================
   # API functions
   #===========================================================================
@@ -24,7 +26,8 @@ defmodule Crawlie.Options do
         min_demand: 5,
         max_demand: 10,
         stages: core_count(),
-      ]
+      ],
+      pqueue_module: :pqueue3,
     ]
   end
 
@@ -73,6 +76,13 @@ defmodule Crawlie.Options do
     Keyword.put(options, :http_client, Crawlie.HttpClient.MockClient)
   end
 
+
+  def get_pqueue_module(options) do
+    case Keyword.get(options, :pqueue_module) do
+      m when m in @valid_pqueue_modules -> m
+      m -> raise "invalid :pqueue_module set in options: #{inspect m}"
+    end
+  end
 
   #===========================================================================
   # Internal Functions

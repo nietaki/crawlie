@@ -16,8 +16,6 @@ defmodule Crawlie.Page do
   - `:retries` - url fetch retry count. If the fetching of the url never failed before, `0`.
   """
   @type t :: %This{
-    # the depth key should have the alphabetically lowest key in the struct so that
-    # it is used in comparisons in the heap
     depth: integer,
     url: String.t,
     retries: integer
