@@ -1,13 +1,15 @@
 defmodule Crawlie.ParserLogic do
 
+  alias Crawlie.Response
+
   @type parsed :: term
   @type result :: term
 
-  @callback parse(url :: String.t, body :: String.t, options :: Keyword.t) :: {:ok, parsed} | {:error, term}
+  @callback parse(Response.t, options :: Keyword.t) :: {:ok, parsed} | {:error, term}
 
-  @callback extract_links(url :: String.t, parsed, options :: Keyword.t) :: [String.t]
+  @callback extract_links(Response.t, parsed, options :: Keyword.t) :: [String.t]
 
-  @callback extract_data(url :: String.t, parsed, options :: Keyword.t) :: [result]
+  @callback extract_data(Response.t, parsed, options :: Keyword.t) :: [result]
 
   @doc false
   defmacro __using__(_) do
@@ -15,15 +17,15 @@ defmodule Crawlie.ParserLogic do
       @behaviour Crawlie.ParserLogic
 
       @doc false
-      def parse(_url, body, _options), do: {:ok, body}
+      def parse(%Response{body: body}, _options), do: {:ok, body}
 
       @doc false
-      def extract_links(_url, _, _options), do: []
+      def extract_links(_response, _parsed, _options), do: []
 
       @doc false
-      def extract_data(_url, parsed, _options), do: [parsed]
+      def extract_data(_response, parsed, _options), do: [parsed]
 
-      defoverridable [parse: 3, extract_links: 3, extract_data: 3]
+      defoverridable [parse: 2, extract_links: 3, extract_data: 3]
     end
   end
 

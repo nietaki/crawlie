@@ -11,6 +11,7 @@ defmodule Crawlie do
 
   alias Crawlie.Options
   alias Crawlie.Page
+  alias Crawlie.Response
   alias Crawlie.Stage.UrlManager
 
 
@@ -72,8 +73,8 @@ defmodule Crawlie do
   def fetch_operation(%Page{url: url} = page, options, url_stage) do
     client = Keyword.get(options, :http_client)
     case client.get(url, options) do
-      {:ok, body} ->
-        [{page, body}]
+      {:ok, response} ->
+        [{page, response}]
       {:error, _reason} ->
         UrlManager.page_failed(url_stage, page)
         []
@@ -83,10 +84,10 @@ defmodule Crawlie do
 
   @spec parse_operation({Page.t, String.t}, Keyword.t, module, GenStage.stage) :: [{Page.t, term}]
   @doc false
-  def parse_operation({%Page{url: url} = page, body}, options, parser_logic, url_stage) when is_binary(body) do
+  def parse_operation({%Page{} = page, %Response{} = response}, options, parser_logic, url_stage) do
 
-    case parser_logic.parse(url, body, options) do
-      {:ok, parsed} -> [{page, parsed}]
+    case parser_logic.parse(response, options) do
+      {:ok, parsed} -> [{page, response, parsed}]
       {:error, reason} ->
         UrlManager.page_failed(url_stage, page)
         Logger.warn "could not parse #{inspect page.url}, parsing failed with error #{inspect reason}"
@@ -95,12 +96,12 @@ defmodule Crawlie do
   end
 
 
-  @spec extract_links_operation({Page.t, term}, Keyword.t, module, GenStage.stage) :: any
+  @spec extract_links_operation({Page.t, Response.t, term}, Keyword.t, module, GenStage.stage) :: any
   @doc false
-  def extract_links_operation({%Page{url: url, depth: depth} = page, parsed}, options, module, url_stage) do
+  def extract_links_operation({%Page{depth: depth} = page, response, parsed}, options, module, url_stage) do
     max_depth = Keyword.get(options, :max_depth, 0)
     if depth < max_depth do
-      pages = module.extract_links(url, parsed, options)
+      pages = module.extract_links(response, parsed, options)
         |> Enum.map(&Page.child(page, &1))
       UrlManager.add_children_pages(url_stage, pages)
     end
@@ -112,8 +113,8 @@ defmodule Crawlie do
 
   @spec extract_data_operation({Page.t, term}, Keyword.t, module) :: [term]
   @doc false
-  def extract_data_operation({%Page{url: url}, parsed}, options, module) do
-    module.extract_data(url, parsed, options)
+  def extract_data_operation({_page, response, parsed}, options, module) do
+    module.extract_data(response, parsed, options)
   end
 
 end
