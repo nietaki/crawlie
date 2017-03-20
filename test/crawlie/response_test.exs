@@ -48,5 +48,9 @@ defmodule Crawlie.ResponseTest do
     assert Response.content_type_simple(base_case) == "text/html"
   end
 
+  test "url/1" do
+    assert Response.url(@r) == @url
+  end
+
 
 end

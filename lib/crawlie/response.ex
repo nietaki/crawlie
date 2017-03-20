@@ -47,6 +47,13 @@ defmodule Crawlie.Response do
   end
 
 
+  @spec url(This.t) :: String.t
+
+  def url(this) do
+    URI.to_string(this.uri)
+  end
+
+
   @spec content_type(This.t) :: String.t | nil
 
   def content_type(%This{headers: headers}) do
