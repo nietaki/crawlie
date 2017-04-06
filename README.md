@@ -33,16 +33,16 @@ The package can be installed as:
 
   1. Add `crawlie` to your list of dependencies in `mix.exs`:
 
-    ```elixir
-    def deps do
-      [{:crawlie, "~> 0.3.0"}]
-    end
-    ```
+```elixir
+def deps do
+  [{:crawlie, "~> 0.3.0"}]
+end
+```
 
   2. Ensure `crawlie` is started before your application:
 
-    ```elixir
-    def application do
-      [applications: [:crawlie]]
-    end
-    ```
+```elixir
+def application do
+  [applications: [:crawlie]]
+end
+```
