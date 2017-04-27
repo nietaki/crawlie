@@ -71,8 +71,8 @@ defmodule CrawlieTest do
   defmodule LinkExtractingLogic do
     @behaviour Crawlie.ParserLogic
 
-    def parse(%Response{uri: uri}, _options) do
-      {:ok, URI.to_string(uri)}
+    def parse(%Response{} = response, _options) do
+      {:ok, Response.url(response)}
     end
 
     def extract_links(_url, parsed, _options) do

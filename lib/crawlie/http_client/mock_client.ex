@@ -64,5 +64,4 @@ defmodule Crawlie.HttpClient.MockClient do
   """
   def return_error(error), do: fn(_url) -> {:error, error} end
 
-
 end

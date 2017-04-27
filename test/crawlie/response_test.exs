@@ -52,5 +52,4 @@ defmodule Crawlie.ResponseTest do
     assert Response.url(@r) == @url
   end
 
-
 end
