@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.0 (2017-04-28)
+
+Enhancements:
+- Introducing `Crawlie.Response` struct passed to the user's parser logic - breaking API change. - [#6](https://github.com/nietaki/crawlie/issues/6)
+- Setting sensible defaults tuning the Flow parameters - [#8](https://github.com/nietaki/crawlie/issues/8)
+
 ## v0.3.1 (2017-01-06)
 
 Enhancements:

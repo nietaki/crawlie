@@ -1,4 +1,5 @@
-# Crawlie (the crawler) [![badge](https://travis-ci.org/nietaki/crawlie.svg?branch=master)](https://travis-ci.org/nietaki/crawlie) [![Coverage Status](https://coveralls.io/repos/github/nietaki/crawlie/badge.svg?branch=master)](https://coveralls.io/github/nietaki/crawlie?branch=master) [![Hex.pm](https://img.shields.io/hexpm/v/crawlie.svg)](https://hex.pm/packages/crawlie) [![docs](https://img.shields.io/badge/docs-hexdocs-yellow.svg)](https://hexdocs.pm/crawlie/)
+# Crawlie (the crawler) [![badge](https://travis-ci.org/nietaki/crawlie.svg?branch=master)](https://travis-ci.org/nietaki/crawlie) [![Coverage Status](https://coveralls.io/repos/github/nietaki/crawlie/badge.svg?branch=master)](https://coveralls.io/github/nietaki/crawlie?branch=master) [![Hex.pm](https://img.shields.io/hexpm/v/crawlie.svg)](https://hex.pm/packages/crawlie) [![docs](https://img.shields.io/badge/docs-hexdocs-yellow.svg)](https://hexdocs.pm/crawlie/) [![Built with Spacemacs](https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg)](http://spacemacs.org)
+
 
 Crawlie is a simple Elixir library for writing decently-performing crawlers with minimum effort.
 
@@ -35,7 +36,7 @@ The package can be installed as:
 
 ```elixir
 def deps do
-  [{:crawlie, "~> 0.3.0"}]
+  [{:crawlie, "~> 0.4.0"}]
 end
 ```
 
