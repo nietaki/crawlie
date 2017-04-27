@@ -2,6 +2,7 @@ defmodule CrawlieTest do
   use ExUnit.Case
 
   alias Crawlie.Options
+  alias Crawlie.Response
   alias Crawlie.HttpClient.MockClient
   alias Crawlie.ParserLogic.Default, as: DefaultParserLogic
 
@@ -21,7 +22,7 @@ defmodule CrawlieTest do
   defmodule SimpleLogic do
     @behaviour Crawlie.ParserLogic
 
-    def parse(_url, body, options) do
+    def parse(%{body: body}, options) do
       assert Keyword.get(options, :foo) == :bar
       {:ok, "parsed " <> body}
     end
@@ -70,8 +71,8 @@ defmodule CrawlieTest do
   defmodule LinkExtractingLogic do
     @behaviour Crawlie.ParserLogic
 
-    def parse(url, _body, _options) do
-      {:ok, url}
+    def parse(%Response{} = response, _options) do
+      {:ok, Response.url(response)}
     end
 
     def extract_links(_url, parsed, _options) do
@@ -133,7 +134,7 @@ defmodule CrawlieTest do
 
   defmodule IncompetentParser do
     use Crawlie.ParserLogic
-    def parse(_, _, _), do: {:error, :i_cant_parse_this}
+    def parse(_, _), do: {:error, :i_cant_parse_this}
   end
 
   test "if the parser fails to parse a page, the page is skipped" do

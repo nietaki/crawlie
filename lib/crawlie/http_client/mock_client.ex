@@ -1,5 +1,7 @@
 defmodule Crawlie.HttpClient.MockClient do
 
+  alias Crawlie.Response
+
   @behaviour Crawlie.HttpClient
 
   @doc """
@@ -8,13 +10,19 @@ defmodule Crawlie.HttpClient.MockClient do
   ## Example
       iex> fun = fn(url) -> {:ok, url <> " body"} end
       iex> opts = [mock_client_fun: fun]
-      iex> Crawlie.HttpClient.MockClient.get("http://a.bc/", opts)
-      {:ok, "http://a.bc/ body"}
+      iex> {:ok, response} = Crawlie.HttpClient.MockClient.get("http://a.bc/", opts)
+      iex> response.status_code
+      200
+      iex> response.headers
+      []
+      iex> response.body
+      "http://a.bc/ body"
   """
   def get(url, opts) do
     client_function = Keyword.fetch!(opts, :mock_client_fun)
     case client_function.(url) do
-      {:ok, body} = res when is_binary(body) -> res
+      {:ok, body} when is_binary(body) ->
+        {:ok, Response.new(url, 200, [], body)}
       {:error, _reason} = err -> err
       els -> raise "unexpected value returned from the mock client function: #{inspect els}"
     end
@@ -55,4 +63,5 @@ defmodule Crawlie.HttpClient.MockClient do
       {:error, :foo}
   """
   def return_error(error), do: fn(_url) -> {:error, error} end
+
 end

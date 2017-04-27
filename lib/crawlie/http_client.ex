@@ -1,6 +1,6 @@
 defmodule Crawlie.HttpClient do
-  @type body :: String.t
+  alias Crawlie.Response
 
   @callback get(url :: String.t, opts :: Keyword.t)
-    :: {:ok, body} | {:error, term}
+    :: {:ok, Response.t} | {:error, term}
 end

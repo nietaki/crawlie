@@ -1,6 +1,7 @@
 defmodule Crawlie.HttpClient.HTTPoisonClient do
 
-  alias HTTPoison.Response
+  alias HTTPoison.Response, as: PoisonResponse
+  alias Crawlie.Response
 
   @behaviour Crawlie.HttpClient
 
@@ -23,8 +24,9 @@ defmodule Crawlie.HttpClient.HTTPoisonClient do
     headers = Keyword.get(opts, :headers, [])
     httpoison_opts = Keyword.take(opts, @valid_configuration_keys)
 
-    with  {:ok, response} <- HTTPoison.get(url, headers, httpoison_opts),
-          %Response{body: body} = response,
-    do: {:ok, body}
+    with {:ok, response} <- HTTPoison.get(url, headers, httpoison_opts),
+         %PoisonResponse{body: body, headers: headers, status_code: code} = response,
+         response = Response.new(url, code, headers, body),
+    do: {:ok, response}
   end
 end
