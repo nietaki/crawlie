@@ -1,5 +1,4 @@
 defmodule Crawlie.Stage.UrlManager do
-  alias Experimental.GenStage
   alias Crawlie.Options
   alias Crawlie.Page
   alias Crawlie.PqueueWrapper, as: PriorityQueue

@@ -6,9 +6,6 @@ defmodule Crawlie do
 
   require Logger
 
-  alias Experimental.GenStage
-  alias Experimental.Flow
-
   alias Crawlie.Options
   alias Crawlie.Page
   alias Crawlie.Response
@@ -43,7 +40,7 @@ defmodule Crawlie do
     page before giving up. By default `3`.
   - `:fetch_phase` - `Flow` partition configuration for the fetching phase of the crawling `Flow`.
     It should be a Keyword List containing any subset of `:min_demand`, `:max_demand` and `:stages`
-    properties. For the meaning of these options see [Flow documentation](https://hexdocs.pm/gen_stage/Experimental.Flow.html)
+    properties. For the meaning of these options see [Flow documentation](https://hexdocs.pm/gen_stage/Flow.html)
   - `:process_phase` - same as `:fetch_phase`, but for the processing (page parsing, data and link
     extraction) part of the process
   - `:pqueue_module` - One of [pqueue](https://github.com/okeuday/pqueue) implementations:
