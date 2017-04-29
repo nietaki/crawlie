@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.1 (2017-04-29)
+
+Enhancements:
+- Updating `GenStage` and `Flow` to 0.11.x
+
 ## v0.4.0 (2017-04-28)
 
 Enhancements:
