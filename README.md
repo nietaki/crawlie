@@ -10,9 +10,9 @@ See the [crawlie_example](https://github.com/nietaki/crawlie_example) project.
 ## Inner workings
 
 Crawlie uses Elixir's [GenStage](https://github.com/elixir-lang/gen_stage) to parallelise
-the work. Most of the logic is handled by the **UrlManager**, which consumes the url collection passed by the user, receives the urls extracted by the subsequent processing, makes sure no url is processed more than once, makes sure that the "discovered urls" collection is as small as possible by traversing the url tree in a roughly depth-first manner.
+the work. Most of the logic is handled by the `Crawlie.Stage.UrlManager`, which consumes the url collection passed by the user, receives the urls extracted by the subsequent processing, makes sure no url is processed more than once, makes sure that the "discovered urls" collection is as small as possible by traversing the url tree in a roughly depth-first manner.
 
-The urls are requested from the **UrlManager** by a GenStage [Flow](https://hexdocs.pm/gen_stage/Experimental.Flow.html#content), which in parallel
+The urls are requested from the `Crawlie.Stage.UrlManager` by a GenStage [Flow](https://hexdocs.pm/flow/Flow.html#content), which in parallel
 fetches the urls using HTTPoison, and parses the responses using user-provided callbacks. Discovered urls get sent back to UrlManager.
 
 Here's a rough diagram:
