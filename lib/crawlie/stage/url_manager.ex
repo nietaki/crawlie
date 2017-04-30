@@ -58,14 +58,14 @@ defmodule Crawlie.Stage.UrlManager do
       max_retries = Keyword.get(state.options, :max_retries)
 
       if depth > max_depth do
-        Logger.error "Trying to add a page #{inspect page.url} with 'depth' > max_depth: #{depth}"
+        Logger.error "Trying to add a page \"#{Page.url(page)}\" with 'depth' > max_depth: #{depth}"
         state
       else
         if retries <= max_retries do
           discovered = PriorityQueue.add_page(discovered, page)
           %State{state | discovered: discovered}
         else
-          Logger.warn("After #{page.retries} retries, failed to fetch #{page.url}.")
+          Logger.warn("After #{page.retries} retries, failed to fetch #{page.uri}.")
           state
         end
       end
@@ -94,48 +94,48 @@ defmodule Crawlie.Stage.UrlManager do
       if page == nil do
         {state, acc}
       else
-        case {page, State.visited?(state, page.url)} do
+        case {page, State.visited?(state, page.uri)} do
           {%Page{retries: 0}, true} ->
             # if retries > 0, it doesn't matter if the page was visited before, we're just retrying
             _take_pages(state, count, acc)
           {page, _} ->
             state = state
-              |> State.visit(page.url)
-              |> State.started_processing(page.url)
+              |> State.visit(page.uri)
+              |> State.started_processing(page.uri)
             _take_pages(state, count - 1, [page | acc])
         end
       end
     end
 
-    @spec visit(State.t, String.t) :: State.t
+    @spec visit(State.t, URI.t) :: State.t
     @doc """
-    Marks the url as "already visited" in the state
+    Marks the uri as "already visited" in the state
     """
-    def visit(%State{visited: visited} = state, url) do
-      visited = MapSet.put(visited, url)
+    def visit(%State{visited: visited} = state, uri) do
+      visited = MapSet.put(visited, uri)
       %State{state | visited: visited}
     end
 
 
-    @spec visited?(State.t, String.t) :: boolean
+    @spec visited?(State.t, URI.t) :: boolean
     @doc """
-    Checks if the url was already visited by the crawler
+    Checks if the uri was already visited by the crawler
     """
-    def visited?(%State{visited: visited}, url) do
-      MapSet.member?(visited, url)
+    def visited?(%State{visited: visited}, uri) do
+      MapSet.member?(visited, uri)
     end
 
 
-    @spec started_processing(State.t, String.t) :: State.t
-    def started_processing(%State{in_flight: in_flight} = state, url) when is_binary(url) do
-      in_flight = MapSet.put(in_flight, url)
+    @spec started_processing(State.t, URI.t) :: State.t
+    def started_processing(%State{in_flight: in_flight} = state, %URI{} = uri) do
+      in_flight = MapSet.put(in_flight, uri)
       %State{state | in_flight: in_flight}
     end
 
 
     @spec finished_processing(State.t, String.t):: State.t
-    def finished_processing(%State{in_flight: in_flight} = state, url) when is_binary(url) do
-      in_flight = MapSet.delete(in_flight, url)
+    def finished_processing(%State{in_flight: in_flight} = state, %URI{} = uri) do
+      in_flight = MapSet.delete(in_flight, uri)
       %State{state | in_flight: in_flight}
     end
 
@@ -154,8 +154,8 @@ defmodule Crawlie.Stage.UrlManager do
 
   @spec start_link(Stream.t, Keyword.t) :: {:ok, GenStage.stage}
 
-  def start_link(urls, crawlie_options) when is_list(crawlie_options) do
-    pages = Stream.map(urls, &Page.new(&1))
+  def start_link(uris, crawlie_options) when is_list(crawlie_options) do
+    pages = Stream.map(uris, &Page.new(&1))
     init_args = %{
       pages: pages,
       crawlie_options: crawlie_options,
@@ -202,14 +202,14 @@ defmodule Crawlie.Stage.UrlManager do
 
   def handle_cast({:page_failed, %Page{} = page}, %State{} = state) do
     state
-      |> State.finished_processing(page.url)
+      |> State.finished_processing(page.uri)
       |> State.add_pages([Page.retry(page)])
       |> do_handle_demand()
   end
 
   def handle_cast({:page_succeeded, %Page{} = page}, %State{} = state) do
     state
-      |> State.finished_processing(page.url)
+      |> State.finished_processing(page.uri)
       |> do_handle_demand()
   end
 

@@ -9,7 +9,7 @@ defmodule Crawlie.Page do
 
   Fields' meaning:
 
-  - `:url` - page url
+  - `:uri` - page `URI`
   - `:depth` - the "depth" at which the url was found while recursively crawling the pages.
     For example `depth=0` means it was passed directly from the caller, `depth=2` means
     the crawler followed 2 links from one of the starting urls to get to the url.
@@ -17,11 +17,11 @@ defmodule Crawlie.Page do
   """
   @type t :: %This{
     depth: integer,
-    url: String.t,
+    uri: URI.t,
     retries: integer
   }
   defstruct [
-    :url,
+    :uri,
     depth: 0,
     retries: 0,
   ]
@@ -30,21 +30,24 @@ defmodule Crawlie.Page do
   # API Functions
   #===========================================================================
 
-  @spec new(String.t, integer) :: This.t
+  @spec new(URI.t | String.t, integer) :: This.t
   @doc """
   Creates a new `Crawlie.Page` struct from the url
   """
-  def new(url, depth \\ 0) when is_binary(url) and is_integer(depth),
-    do: %This{url: url, depth: depth}
+  def new(uri, depth \\ 0) when is_integer(depth) do
+    #TODO strip the hash fragment
+    uri = URI.parse(uri) # works with both binaries and %URI{}
+    %This{uri: uri, depth: depth}
+  end
 
 
-  @spec child(This.t, String.t) :: This.t
+  @spec child(This.t, URI.t | String.t) :: This.t
   @doc """
   Creates a "child page" - a new `Crawlie.Page` struct with depth one greate than
   the one of the parent and no retries.
   """
-  def child(%This{depth: depth}, url) when is_binary(url) do
-    This.new(url, depth + 1)
+  def child(%This{depth: depth}, uri) do
+    This.new(uri, depth + 1)
   end
 
 
@@ -53,5 +56,12 @@ defmodule Crawlie.Page do
   Returns the `Crawlie.Page` object with the retry count increased
   """
   def retry(%This{retries: r} = this), do: %This{this | retries: r + 1}
+
+
+  @spec url(This.t) :: String.t
+  @doc """
+  Returns the string url of the page
+  """
+  def url(this), do: URI.to_string(this.uri)
 
 end
