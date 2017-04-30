@@ -69,8 +69,7 @@ defmodule Crawlie do
   @doc false
   def fetch_operation(%Page{uri: uri} = page, options, url_stage) do
     client = Keyword.get(options, :http_client)
-    url = URI.to_string(uri)
-    case client.get(url, options) do
+    case client.get(uri, options) do
       {:ok, response} ->
         [{page, response}]
       {:error, _reason} ->
