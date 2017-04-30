@@ -38,4 +38,8 @@ defmodule Crawlie.PageTest do
   test "Page.url/1" do
     assert @url == Page.url(Page.new(@url))
   end
+
+  test "Page constructor strips off the hash fragment" do
+    assert Page.new(@url) == Page.new(@url <> "#anchor")
+  end
 end

@@ -36,7 +36,10 @@ defmodule Crawlie.Page do
   """
   def new(uri, depth \\ 0) when is_integer(depth) do
     #TODO strip the hash fragment
-    uri = URI.parse(uri) # works with both binaries and %URI{}
+    uri =
+      uri
+      |> URI.parse() # works with both binaries and %URI{}
+      |> strip_fragment()
     %This{uri: uri, depth: depth}
   end
 
@@ -63,5 +66,13 @@ defmodule Crawlie.Page do
   Returns the string url of the page
   """
   def url(this), do: URI.to_string(this.uri)
+
+
+  #===========================================================================
+  # Internal Functions
+  #===========================================================================
+
+  defp strip_fragment(%URI{fragment: nil} = uri), do: uri
+  defp strip_fragment(%URI{fragment: _} = uri), do: %URI{uri | fragment: nil}
 
 end
