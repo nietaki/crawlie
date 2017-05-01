@@ -110,7 +110,7 @@ defmodule CrawlieTest do
     ])
   end
 
-  test "fetching an url succeeds if the fetch fails few enough times" do
+  test "fetching a url succeeds if the fetch fails few enough times" do
     opts = Options.with_mock_client(test_opts ++ [max_retries: 2])
     opts = Keyword.put(opts, :mock_client_fun, errors_out_times(2))
 
@@ -120,7 +120,7 @@ defmodule CrawlieTest do
     assert Enum.to_list(ret) == ["foo"]
   end
 
-  test "fetching an url fails if the fetch fails too many times" do
+  test "fetching a url fails if the fetch fails too many times" do
     opts = Options.with_mock_client(test_opts ++ [max_retries: 2])
     opts = Keyword.put(opts, :mock_client_fun, errors_out_times(3))
 
