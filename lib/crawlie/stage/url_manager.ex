@@ -48,21 +48,25 @@ defmodule Crawlie.Stage.UrlManager do
       Enum.reduce(pages, state, &add_page(&2, &1))
     end
 
-    def add_page(%State{discovered: discovered} = state, %Page{depth: depth, retries: retries} = page) do
+    def add_page(%State{discovered: discovered} = state, page) do
       max_depth = Keyword.get(state.options, :max_depth)
       max_retries = Keyword.get(state.options, :max_retries)
 
-      if depth > max_depth do
-        Logger.error "Trying to add a page \"#{Page.url(page)}\" with 'depth' > max_depth: #{depth}"
-        state
-      else
-        if retries <= max_retries do
-          discovered = PriorityQueue.add_page(discovered, page)
-          %State{state | discovered: discovered}
-        else
+      cond do
+        page.depth > max_depth ->
+          Logger.error "Trying to add a page \"#{Page.url(page)}\" with 'depth' > max_depth: #{page.depth}"
+          state
+        page.retries > max_retries ->
           Logger.warn("After #{page.retries} retries, failed to fetch #{page.uri}.")
           state
-        end
+        page.retries == 0 and State.visited?(state, page.uri) ->
+          # not re-adding an already visited uri.
+          state
+        true ->
+          # not doing the `visited` check because retries would classify as visited
+          state = State.visit(state, page.uri)
+          discovered = PriorityQueue.add_page(discovered, page)
+          %State{state | discovered: discovered}
       end
     end
 
@@ -82,19 +86,12 @@ defmodule Crawlie.Stage.UrlManager do
         true -> {state, nil}
       end
 
-      if page == nil do
-        {state, acc}
-      else
-        case {page, State.visited?(state, page.uri)} do
-          {%Page{retries: 0}, true} ->
-            # if retries > 0, it doesn't matter if the page was visited before, we're just retrying
-            _take_pages(state, count, acc)
-          {page, _} ->
-            state = state
-              |> State.visit(page.uri)
-              |> State.started_processing(page.uri)
-            _take_pages(state, count - 1, [page | acc])
-        end
+      case page do
+        nil ->
+          {state, acc}
+        %Page{uri: uri} ->
+          state = State.started_processing(state, uri)
+          _take_pages(state, count - 1, [page | acc])
       end
     end
 

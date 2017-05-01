@@ -35,7 +35,7 @@ defmodule Crawlie.Stage.UrlManagerTest do
     assert length(@pages) == PW.len(state.discovered)
     assert Enum.sort(@pages) == Enum.sort(PW.all(state.discovered))
     assert state.options == @options
-    assert state.visited == MapSet.new()
+    assert Enum.count(state.visited) == 3
     assert State.finished_crawling?(state) == false
   end
 
@@ -86,6 +86,17 @@ defmodule Crawlie.Stage.UrlManagerTest do
       assert PW.len(new_state.discovered) == 1
       assert {_, ^p1} = PW.take(new_state.discovered)
     end) =~ "[error] Trying to add a page \"bar\" with 'depth' > max_depth:"
+  end
+
+  test "add_pages/2 doesn't add duplicate uris" do
+    state = State.new([], [max_depth: 5] ++ @options)
+    p1 = %Page{uri: uri(@foo), depth: 0, retries: 0}
+    p2 = %Page{uri: uri(@foo), depth: 1, retries: 0}
+
+    new_state = State.add_pages(state, [p1, p2])
+
+    assert PW.len(new_state.discovered) == 1
+    assert {_, ^p1} = PW.take(new_state.discovered)
   end
 
   test "adding a page that was retrieved before doesn't make it fetched again" do
