@@ -92,4 +92,18 @@ defmodule Crawlie.PqueueWrapper do
   def get_priority(%This{module: :pqueue3}, depth), do: -depth
   def get_priority(%This{module: :pqueue4}, depth), do: -depth + 128
 
+
+  @spec all(This.t) :: [term]
+  def all(this) do
+    _all(this, [])
+  end
+
+  defp _all(this, acc) do
+    if empty?(this) do
+      acc
+    else
+      {this, item} = take(this)
+      _all(this, [item | acc])
+    end
+  end
 end

@@ -38,6 +38,18 @@ defmodule PqueueWrapperTest do
     end)
   end
 
+  test "all/1" do
+    pages = [p1, p2, p3] = ["foo", "bar", "baz"] |> Enum.map(&Page.new(&1))
+    empty = PW.new(:pqueue)
+    q =
+      empty
+      |> PW.add_page(p1)
+      |> PW.add_page(p2)
+      |> PW.add_page(p3)
+
+    assert Enum.sort(pages) == Enum.sort(PW.all(q))
+  end
+
   test "works in a sample scenario" do
     p0 = Page.new("foo", 0)
     p1 = Page.new("bar", 1)

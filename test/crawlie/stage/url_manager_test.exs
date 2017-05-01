@@ -10,11 +10,16 @@ defmodule Crawlie.Stage.UrlManagerTest do
   doctest UrlManager
 
   @foo URI.parse("foo")
+  @pfoo Page.new(@foo)
+
   @bar URI.parse("bar")
+  @pbar Page.new(@bar)
+
   @baz URI.parse("baz")
+  @pbaz Page.new(@baz)
 
   @urls [@foo, @bar, @baz]
-  @pages @urls |> Enum.map(&Page.new(&1))
+  @pages [@pfoo, @pbar, @pbaz]
   @pq_module :pqueue3
   @options [foo: :bar, pqueue_module: @pq_module]
 
@@ -27,53 +32,26 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     state = State.new(@pages, @options)
 
-    assert state.initial == @pages
-    assert state.discovered == PW.new(@pq_module)
+    assert length(@pages) == PW.len(state.discovered)
+    assert Enum.sort(@pages) == Enum.sort(PW.all(state.discovered))
     assert state.options == @options
     assert state.visited == MapSet.new()
     assert State.finished_crawling?(state) == false
   end
 
-  test "take_pages takes the pages from the priority queue if available" do
-    h = PW.new(@pq_module)
-
-    h = PW.add_page(h, Page.new("h1", 1))
-    h = PW.add_page(h, Page.new("h2", 2))
-    h = PW.add_page(h, Page.new("h3", 3))
-
+  test "take_pages takes the pages from the priority queue" do
     state = State.new(@pages, @options)
-    state = %State{state | discovered: h}
     assert State.finished_crawling?(state) == false
 
     {new_state, pages} = State.take_pages(state, 2)
-    assert Enum.count(pages) == 2
-    assert Enum.sort(pages) == Enum.sort([Page.new("h3", 3), Page.new("h2", 2)])
+    # those could actually be any other two, but this is easier to test ;)
+    assert pages == [@pbar, @pfoo]
 
-    assert new_state.initial == state.initial
     assert new_state.options == state.options
 
     assert PW.len(new_state.discovered) == 1
-    h1 = Page.new("h1", 1)
-    assert {_, ^h1} = PW.take(new_state.discovered)
+    assert {_, @pbaz} = PW.take(new_state.discovered)
     assert State.finished_crawling?(new_state) == false
-  end
-
-  test "take_pages takes the pages from both the priority queue and initial" do
-    h = PW.new(@pq_module)
-
-    h = PW.add_page(h, Page.new("h1", 1))
-
-    state = State.new(@pages, @options)
-    state = %State{state | discovered: h}
-
-    {new_state, pages} = State.take_pages(state, 2)
-    assert Enum.count(pages) == 2
-    assert Enum.sort(pages) == Enum.sort([Page.new("h1", 1), Page.new(@foo)])
-
-    assert new_state.initial == Enum.drop(state.initial, 1)
-    assert new_state.options == state.options
-
-    assert PW.len(new_state.discovered) == 0
   end
 
   test "take_pages handles the case where everything gets empty" do
@@ -82,7 +60,6 @@ defmodule Crawlie.Stage.UrlManagerTest do
     {new_state, pages} = State.take_pages(state, 66)
     assert Enum.sort(pages) == Enum.sort(@pages)
 
-    assert new_state.initial == []
     assert new_state.options == state.options
     refute State.finished_crawling?(new_state)
 
@@ -98,10 +75,10 @@ defmodule Crawlie.Stage.UrlManagerTest do
   end
 
   test "add_pages/2" do
-    state = State.new(@pages, [max_depth: 5, max_retries: 3] ++ @options)
+    state = State.new([], [max_depth: 5, max_retries: 3] ++ @options)
     p1 = %Page{uri: uri(@foo), depth: 5, retries: 3}
-    p2 = %Page{uri: uri(@bar), depth: 6, retries: 0}
-    p3 = %Page{uri: uri(@bar), depth: 1, retries: 4}
+    p2 = %Page{uri: uri(@bar), depth: 6, retries: 0} # too deep
+    p3 = %Page{uri: uri(@bar), depth: 1, retries: 4} # too many retries
 
     assert capture_log(fn ->
       new_state = State.add_pages(state, [p1, p2, p3])
@@ -160,8 +137,7 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     assert {:producer, state} = UrlManager.init(args)
 
-    assert state.initial == @pages
-    assert state.discovered == PW.new(@pq_module)
+    assert PW.len(state.discovered) == 3
     assert state.options == @options
   end
 

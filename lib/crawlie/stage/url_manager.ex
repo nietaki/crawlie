@@ -14,22 +14,16 @@ defmodule Crawlie.Stage.UrlManager do
 
   defmodule State do
     @type t :: %State{
-      # incoming
-      initial: Enum.t, # pages provided by the user
-      discovered: PriorityQueue.t, # pages discovered while crawling
-
-      # current
+      discovered: PriorityQueue.t, # pages discovered while crawling and the initial pages
       pending_demand: integer,
       visited: MapSet.t,
       in_flight: MapSet.t, # urls currently being processed by the rest of the flow
 
-      #others
       options: Keyword.t,
     }
 
-    @enforce_keys [:initial, :discovered, :options]
+    @enforce_keys [:discovered, :options]
     defstruct [
-      :initial,
       :discovered,
       :options,
       visited: MapSet.new,
@@ -40,16 +34,17 @@ defmodule Crawlie.Stage.UrlManager do
     @spec new(Enum.t, Keyword.t) :: State.t
     def new(initial_pages, options) do
       pqueue_module = Options.get_pqueue_module(options)
-      %State{
-        initial: initial_pages,
+      state = %State{
         discovered: PriorityQueue.new(pqueue_module),
         options: options,
       }
+
+      add_pages(state, initial_pages)
     end
 
     @spec add_pages(State.t, [Page.t]) :: State.t
 
-    def add_pages(state, pages) when is_list(pages) do
+    def add_pages(state, pages) do
       Enum.reduce(pages, state, &add_page(&2, &1))
     end
 
@@ -84,10 +79,6 @@ defmodule Crawlie.Stage.UrlManager do
         !PriorityQueue.empty?(state.discovered) ->
           {discovered, page} = PriorityQueue.take(state.discovered)
           {%State{state | discovered: discovered}, page}
-        !Enum.empty?(state.initial) ->
-          initial = state.initial
-          [page] = Enum.take(initial, 1)
-          {%State{state | initial: Enum.drop(initial, 1)}, page}
         true -> {state, nil}
       end
 
@@ -141,10 +132,9 @@ defmodule Crawlie.Stage.UrlManager do
 
 
     @spec finished_crawling?(State.t) :: boolean
-    def finished_crawling?(%State{initial: initial, discovered: discovered, in_flight: in_flight}) do
+    def finished_crawling?(%State{discovered: discovered, in_flight: in_flight}) do
       Enum.empty?(in_flight) and
-        PriorityQueue.empty?(discovered) and
-        Enum.empty?(initial)
+      PriorityQueue.empty?(discovered)
     end
   end
 
