@@ -35,7 +35,6 @@ defmodule Crawlie.Page do
   Creates a new `Crawlie.Page` struct from the url
   """
   def new(uri, depth \\ 0) when is_integer(depth) do
-    #TODO strip the hash fragment
     uri =
       uri
       |> URI.parse() # works with both binaries and %URI{}

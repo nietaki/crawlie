@@ -43,7 +43,7 @@ defmodule Crawlie.Response do
       200
   """
   def new(url, status_code, headers, body)
-  when is_integer(status_code) and is_list(headers) do
+  when is_integer(status_code) and is_list(headers) and is_binary(body) do
     %This{
       uri: URI.parse(url),
       status_code: status_code,
