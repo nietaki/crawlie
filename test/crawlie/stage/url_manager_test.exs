@@ -9,7 +9,11 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
   doctest UrlManager
 
-  @urls ["foo", "bar", "baz"]
+  @foo URI.parse("foo")
+  @bar URI.parse("bar")
+  @baz URI.parse("baz")
+
+  @urls [@foo, @bar, @baz]
   @pages @urls |> Enum.map(&Page.new(&1))
   @pq_module :pqueue3
   @options [foo: :bar, pqueue_module: @pq_module]
@@ -64,7 +68,7 @@ defmodule Crawlie.Stage.UrlManagerTest do
 
     {new_state, pages} = State.take_pages(state, 2)
     assert Enum.count(pages) == 2
-    assert Enum.sort(pages) == Enum.sort([Page.new("h1", 1), Page.new("foo")])
+    assert Enum.sort(pages) == Enum.sort([Page.new("h1", 1), Page.new(@foo)])
 
     assert new_state.initial == Enum.drop(state.initial, 1)
     assert new_state.options == state.options
@@ -85,19 +89,19 @@ defmodule Crawlie.Stage.UrlManagerTest do
     state = new_state
     [a, b, c] = @pages
 
-    state = State.finished_processing(state, a.url)
+    state = State.finished_processing(state, a.uri)
     refute State.finished_crawling?(state)
-    state = State.finished_processing(state, b.url)
+    state = State.finished_processing(state, b.uri)
     refute State.finished_crawling?(state)
-    state = State.finished_processing(state, c.url)
+    state = State.finished_processing(state, c.uri)
     assert State.finished_crawling?(state)
   end
 
   test "add_pages/2" do
     state = State.new(@pages, [max_depth: 5, max_retries: 3] ++ @options)
-    p1 = %Page{url: "foo", depth: 5, retries: 3}
-    p2 = %Page{url: "bar", depth: 6, retries: 0}
-    p3 = %Page{url: "bar", depth: 1, retries: 4}
+    p1 = %Page{uri: uri(@foo), depth: 5, retries: 3}
+    p2 = %Page{uri: uri(@bar), depth: 6, retries: 0}
+    p3 = %Page{uri: uri(@bar), depth: 1, retries: 4}
 
     assert capture_log(fn ->
       new_state = State.add_pages(state, [p1, p2, p3])
@@ -108,11 +112,11 @@ defmodule Crawlie.Stage.UrlManagerTest do
   end
 
   test "adding a page that was retrieved before doesn't make it fetched again" do
-    pages = ["foo", "bar"] |> Enum.map(&Page.new/1)
+    pages = [@foo, @bar] |> Enum.map(&Page.new/1)
     state = State.new(pages, [max_depth: 5, max_retries: 3] ++ @options)
 
     {state, _} = State.take_pages(state, 10)
-    retried = %Page{url: "foo", depth: 1, retries: 0}
+    retried = %Page{uri: uri(@foo), depth: 1, retries: 0}
 
     state = State.add_pages(state, [retried])
 
@@ -121,29 +125,29 @@ defmodule Crawlie.Stage.UrlManagerTest do
   end
 
   test "even if the input urls contain duplicates, the output ones don't" do
-    pages = ["foo", "foo", "bar", "baz"] |> Enum.map(&Page.new/1)
-    pages2 = ["bar", "ban"] |> Enum.map(&Page.new/1)
+    pages = [@foo, @foo, @bar, @baz] |> Enum.map(&Page.new/1)
+    pages2 = [@bar, "ban"] |> Enum.map(&Page.new/1)
     state = State.new(pages, [max_depth: 5, max_retries: 3] ++ @options)
     state = State.add_pages(state, pages2)
 
     {_state, pages} = State.take_pages(state, 10)
-    assert Enum.sort(pages) == Enum.sort(Enum.map(["foo", "bar", "baz", "ban"], &Page.new/1))
+    assert Enum.sort(pages) == Enum.sort(Enum.map([@foo, @bar, @baz, "ban"], &Page.new/1))
   end
 
   test "tracks items in-flight" do
     empty = State.new([], @options)
     assert State.finished_crawling?(empty)
 
-    state = State.started_processing(empty, "foo")
+    state = State.started_processing(empty, @foo)
     refute State.finished_crawling?(state)
 
-    state = State.started_processing(state, "bar")
+    state = State.started_processing(state, @bar)
     refute State.finished_crawling?(state)
 
-    state = State.finished_processing(state, "bar")
+    state = State.finished_processing(state, @bar)
     refute State.finished_crawling?(state)
 
-    state = State.finished_processing(state, "foo")
+    state = State.finished_processing(state, @foo)
     assert State.finished_crawling?(state)
   end
 
@@ -161,5 +165,11 @@ defmodule Crawlie.Stage.UrlManagerTest do
     assert state.options == @options
   end
 
+
+  #===========================================================================
+  # Helper Functions
+  #===========================================================================
+
+  defp uri(url), do: URI.parse(url)
 
 end

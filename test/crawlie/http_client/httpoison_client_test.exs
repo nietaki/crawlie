@@ -6,6 +6,7 @@ defmodule Crawlie.HttpClient.HTTPoisonClientTest do
   alias HTTPoison.Response, as: HTTPoisonResponse
 
   @url "https://foo.bar/"
+  @uri URI.parse(@url)
   @headers [{"Content-Type", "text/html"}, {"Foo", "Bar"}]
   @body "<html />"
 
@@ -17,17 +18,15 @@ defmodule Crawlie.HttpClient.HTTPoisonClientTest do
       {:ok, %HTTPoisonResponse{body: @body, headers: @headers, status_code: 700}}
     end)
 
-    assert {:ok, response} = HTTPoisonClient.get(@url, [])
+    assert {:ok, response} = HTTPoisonClient.get(@uri, [])
     :meck.validate(HTTPoison)
 
     assert %Response{
       body: @body,
       headers: @headers,
       status_code: 700,
-      uri: uri
+      uri: @uri
     } = response
-
-    assert URI.to_string(uri) == @url
   end
 
 end

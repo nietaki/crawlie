@@ -32,7 +32,7 @@ defmodule Crawlie do
   - `:http_client` - module implementing the `Crawlie.HttpClient` behaviour to be
     used to make the requests. If not provided, will default to `Crawlie.HttpClient.HTTPoisonClient`.
   - `:mock_client_fun` - If you're using the `Crawlie.HttpClient.MockClient`, this
-    would be the `url -> {:ok, body :: String.t} | {:error, term}` function simulating
+    would be the `url :: String.t -> {:ok, body :: String.t} | {:error, term}` function simulating
     making the requests.
     for details
   - `:max_depth` - maximum crawling "depth". `0` by default.
@@ -67,9 +67,9 @@ defmodule Crawlie do
 
   @spec fetch_operation(Page.t, Keyword.t, GenStage.stage) :: [{Page.t, String.t}]
   @doc false
-  def fetch_operation(%Page{url: url} = page, options, url_stage) do
+  def fetch_operation(%Page{uri: uri} = page, options, url_stage) do
     client = Keyword.get(options, :http_client)
-    case client.get(url, options) do
+    case client.get(uri, options) do
       {:ok, response} ->
         [{page, response}]
       {:error, _reason} ->
@@ -79,7 +79,7 @@ defmodule Crawlie do
   end
 
 
-  @spec parse_operation({Page.t, String.t}, Keyword.t, module, GenStage.stage) :: [{Page.t, term}]
+  @spec parse_operation({Page.t, Response.t}, Keyword.t, module, GenStage.stage) :: [{Page.t, term}]
   @doc false
   def parse_operation({%Page{} = page, %Response{} = response}, options, parser_logic, url_stage) do
 
@@ -87,7 +87,7 @@ defmodule Crawlie do
       {:ok, parsed} -> [{page, response, parsed}]
       {:error, reason} ->
         UrlManager.page_failed(url_stage, page)
-        Logger.warn "could not parse #{inspect page.url}, parsing failed with error #{inspect reason}"
+        Logger.warn "could not parse \"#{Page.url(page)}\", parsing failed with error #{inspect reason}"
         []
     end
   end
