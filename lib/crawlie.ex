@@ -60,7 +60,7 @@ defmodule Crawlie do
       |> Flow.flat_map(&fetch_operation(&1, options, url_stage))
       |> Flow.partition(Keyword.get(options, :process_phase))
       |> Flow.flat_map(&parse_operation(&1, options, parser_logic, url_stage))
-      |> Flow.each(&extract_links_operation(&1, options, parser_logic, url_stage))
+      |> Flow.each(&extract_uris_operation(&1, options, parser_logic, url_stage))
       |> Flow.flat_map(&extract_data_operation(&1, options, parser_logic))
   end
 
@@ -93,12 +93,12 @@ defmodule Crawlie do
   end
 
 
-  @spec extract_links_operation({Page.t, Response.t, term}, Keyword.t, module, GenStage.stage) :: any
+  @spec extract_uris_operation({Page.t, Response.t, term}, Keyword.t, module, GenStage.stage) :: any
   @doc false
-  def extract_links_operation({%Page{depth: depth} = page, response, parsed}, options, module, url_stage) do
+  def extract_uris_operation({%Page{depth: depth} = page, response, parsed}, options, module, url_stage) do
     max_depth = Keyword.get(options, :max_depth, 0)
     if depth < max_depth do
-      pages = module.extract_links(response, parsed, options)
+      pages = module.extract_uris(response, parsed, options)
         |> Enum.map(&Page.child(page, &1))
       UrlManager.add_children_pages(url_stage, pages)
     end

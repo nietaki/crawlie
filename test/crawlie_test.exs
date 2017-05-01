@@ -27,11 +27,11 @@ defmodule CrawlieTest do
       {:ok, "parsed " <> body}
     end
 
-    def extract_links(_url, _processed, _options) do
+    def extract_uris(_response, _processed, _options) do
       []
     end
 
-    def extract_data(_url, processed, _options) do
+    def extract_data(_response, processed, _options) do
       [{processed, 0}, {processed, 1}]
     end
 
@@ -75,11 +75,11 @@ defmodule CrawlieTest do
       {:ok, Response.url(response)}
     end
 
-    def extract_links(_url, parsed, _options) do
+    def extract_uris(_response, parsed, _options) do
       [parsed <> "0", parsed <> "1"]
     end
 
-    def extract_data(_url, parsed, _options) do
+    def extract_data(_response, parsed, _options) do
       [parsed]
     end
 
