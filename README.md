@@ -25,7 +25,6 @@ See [the docs](https://hexdocs.pm/crawlie/Crawlie.html#crawl/3) for supported op
 
 ## Planned features
 
-- Easier limiting the crawling to a (sub)domain
 - Option of respecting `robots.txt` of the websites (on by default)
 
 ## Installation
@@ -36,7 +35,7 @@ The package can be installed as:
 
 ```elixir
 def deps do
-  [{:crawlie, "~> 0.4.0"}]
+  [{:crawlie, "~> 0.5.0"}]
 end
 ```
 

@@ -11,7 +11,7 @@ defmodule Crawlie.Mixfile do
   #   - mix hex.build
   #   - mix hex.publish
 
-  @version "0.4.1"
+  @version "0.5.0"
 
 
   def project do
