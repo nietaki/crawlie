@@ -131,6 +131,23 @@ defmodule CrawlieTest do
   end
 
 
+  defmodule SkippingParser do
+    use Crawlie.ParserLogic
+    def parse(%Response{body: "foo"}, _), do: :skip
+    def parse(%Response{body: "bar"}, _), do: {:skip, :i_cant_parse_bar}
+    def parse(%Response{body: els}, _), do: {:ok, els}
+  end
+
+  test "if the parser skips a page, the page is skipped" do
+    opts = Options.with_mock_client(test_opts)
+    opts = Keyword.put(opts, :mock_client_fun, MockClient.return_url)
+
+    urls = ["foo", "bar", "baz"]
+    ret = Crawlie.crawl(urls, SkippingParser, opts)
+
+    assert Enum.to_list(ret) == ["baz"]
+  end
+
 
   defmodule IncompetentParser do
     use Crawlie.ParserLogic

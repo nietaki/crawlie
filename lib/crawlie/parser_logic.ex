@@ -5,10 +5,35 @@ defmodule Crawlie.ParserLogic do
   @type parsed :: term
   @type result :: term
 
-  @callback parse(Response.t, options :: Keyword.t) :: {:ok, parsed} | {:error, term}
+  @type parse_result :: {:ok, parsed} | {:error, term} | :skip | {:skip, reason :: atom}
 
-  @callback extract_uris(Response.t, parsed, options :: Keyword.t) :: [String.t]
+  @doc """
+  Parses the retrieved page to user-defined data.
 
+  The `t:parsed/0` response gets passed on to subsequent operations along with the
+  original `t:Crawlie.Response.t/0`.
+
+  Returning `:skip` or `{:skip, reason}` skips the page from further processing without
+  signalling an error. This can be used for omitting pages with unsupported / not
+  interesting content types.
+
+  If you don't need to transform the received `t:Crawlie.Response.t/0`, you can use the default
+  implementation or return `{:ok, :this_can_be_whatever}`.
+  """
+  @callback parse(Response.t, options :: Keyword.t) :: parse_result
+
+  @doc """
+  Extracts the uri's to be crawled subsequently.
+  """
+  @callback extract_uris(Response.t, parsed, options :: Keyword.t) :: [URI.t | String.t]
+
+  @doc """
+  Extracts the final data from the parsed page.
+
+  Note, this callback shoud return a list - you can return one, zero or many items
+  that will be put in the `t:Flow.t/0` returned by `Crawlie.crawl/3` - similar
+  as in `Enum.flat_map/2`.
+  """
   @callback extract_data(Response.t, parsed, options :: Keyword.t) :: [result]
 
   @doc false
