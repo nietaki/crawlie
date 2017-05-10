@@ -39,7 +39,10 @@ defmodule Crawlie.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :pqueue]]
+    [
+      applications: [:logger, :httpoison, :pqueue],
+      mod: {Crawlie.Application, []}
+    ]
   end
 
   defp docs do
