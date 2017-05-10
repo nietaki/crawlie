@@ -5,7 +5,9 @@ defmodule Crawlie.ParserLogic do
   @type parsed :: term
   @type result :: term
 
-  @callback parse(Response.t, options :: Keyword.t) :: {:ok, parsed} | {:error, term}
+  @type parse_result :: {:ok, parsed} | {:error, term} | :skip | {:skip, reason :: atom}
+
+  @callback parse(Response.t, options :: Keyword.t) :: parse_result
 
   @callback extract_uris(Response.t, parsed, options :: Keyword.t) :: [String.t]
 

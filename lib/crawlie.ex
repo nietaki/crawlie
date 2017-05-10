@@ -84,7 +84,14 @@ defmodule Crawlie do
   def parse_operation({%Page{} = page, %Response{} = response}, options, parser_logic, url_stage) do
 
     case parser_logic.parse(response, options) do
-      {:ok, parsed} -> [{page, response, parsed}]
+      {:ok, parsed} ->
+        [{page, response, parsed}]
+      :skip ->
+        UrlManager.page_skipped(url_stage, page)
+        []
+      {:skip, _reason} ->
+        UrlManager.page_skipped(url_stage, page)
+        []
       {:error, reason} ->
         UrlManager.page_failed(url_stage, page)
         Logger.warn "could not parse \"#{Page.url(page)}\", parsing failed with error #{inspect reason}"
