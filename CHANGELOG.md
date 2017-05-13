@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.1 (2017-05-11)
+
+Enhancements:
+- Allowing the `Crawlie.ParserLogic` to skip pages without printing warnings. [#27](https://github.com/nietaki/crawlie/issues/27)
+- Better documentation for `Crawlie.ParserLogic` behaviour.
+
 ## v0.5.0 (2017-05-02)
 
 Enhancements: 

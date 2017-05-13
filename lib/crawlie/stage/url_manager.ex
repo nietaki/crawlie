@@ -162,6 +162,10 @@ defmodule Crawlie.Stage.UrlManager do
     GenStage.cast(url_manager_stage, {:page_failed, failed_page})
   end
 
+  @spec page_skipped(GenStage.stage, Page.t) :: :ok
+  def page_skipped(url_manager_stage, skipped_page) do
+    GenStage.cast(url_manager_stage, {:page_skipped, skipped_page})
+  end
 
   @spec page_succeeded(GenStage.stage, Page.t) :: :ok
   def page_succeeded(url_manager_stage, succeeded_page) do
@@ -191,6 +195,12 @@ defmodule Crawlie.Stage.UrlManager do
     state
       |> State.finished_processing(page.uri)
       |> State.add_pages([Page.retry(page)])
+      |> do_handle_demand()
+  end
+
+  def handle_cast({:page_skipped, %Page{} = page}, %State{} = state) do
+    state
+      |> State.finished_processing(page.uri)
       |> do_handle_demand()
   end
 
