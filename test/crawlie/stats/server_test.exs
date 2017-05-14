@@ -7,7 +7,8 @@ defmodule Crawlie.Stats.ServerTest do
   test "get_stats on a fresh server" do
     ref = Server.start_new()
 
-    assert %Data{} = Server.get_stats(ref)
+    assert %Data{} = data = Server.get_stats(ref)
+    assert data.status == :ready
   end
 
 end

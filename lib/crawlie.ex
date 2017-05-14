@@ -70,6 +70,7 @@ defmodule Crawlie do
 
     options = options
       |> Options.strip_reserved()
+      |> Keyword.put(:stats_ref, ref)
       |> Options.with_defaults()
 
     flow = _crawl(source, parser_logic, options)
@@ -89,7 +90,6 @@ defmodule Crawlie do
       |> Flow.flat_map(&parse_operation(&1, options, parser_logic, url_stage))
       |> Flow.each(&extract_uris_operation(&1, options, parser_logic, url_stage))
       |> Flow.flat_map(&extract_data_operation(&1, options, parser_logic))
-
   end
 
 
@@ -99,6 +99,7 @@ defmodule Crawlie do
     client = Keyword.get(options, :http_client)
     case client.get(uri, options) do
       {:ok, response} ->
+        maybe_stats(options, &StatsServer.fetch_succeeded(&1, page, response))
         [{page, response}]
       {:error, _reason} ->
         UrlManager.page_failed(url_stage, page)
@@ -147,6 +148,21 @@ defmodule Crawlie do
   @doc false
   def extract_data_operation({_page, response, parsed}, options, module) do
     module.extract_data(response, parsed, options)
+  end
+
+
+  #===========================================================================
+  # Internal Functions
+  #===========================================================================
+
+  defp maybe_stats(options, op) do
+    case Keyword.get(options, :stats_ref) do
+      nil ->
+        :ok
+      ref ->
+        op.(ref)
+        :ok
+    end
   end
 
 end
