@@ -29,6 +29,8 @@ defmodule Crawlie.Options do
         stages: core_count(),
       ],
       pqueue_module: :pqueue3,
+      max_fetch_failed_uris_tracked: 1000,
+      max_parse_failed_uris_tracked: 1000,
     ]
   end
 
@@ -97,5 +99,16 @@ defmodule Crawlie.Options do
   #===========================================================================
 
   def core_count(), do: System.schedulers_online
+
+  @doc false
+  def stats_op(options, op) do
+    case Keyword.get(options, :stats_ref) do
+      nil ->
+        :ok
+      ref ->
+        op.(ref)
+        :ok
+    end
+  end
 
 end

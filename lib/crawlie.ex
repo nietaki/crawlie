@@ -9,6 +9,7 @@ defmodule Crawlie do
   alias Crawlie.Options
   alias Crawlie.Page
   alias Crawlie.Response
+  alias Crawlie.Utils
   alias Crawlie.Stage.UrlManager
   alias Crawlie.Stats.Server, as: StatsServer
 
@@ -97,12 +98,16 @@ defmodule Crawlie do
   @doc false
   def fetch_operation(%Page{uri: uri} = page, options, url_stage) do
     client = Keyword.get(options, :http_client)
+    start_time = Utils.utimestamp()
     case client.get(uri, options) do
       {:ok, response} ->
-        maybe_stats(options, &StatsServer.fetch_succeeded(&1, page, response))
+        duration_usec = Utils.utimestamp() - start_time
+        Options.stats_op(options, &StatsServer.fetch_succeeded(&1, page, response, duration_usec))
         [{page, response}]
       {:error, _reason} ->
         UrlManager.page_failed(url_stage, page)
+        max_failed_uris_to_track = Keyword.fetch!(options, :max_fetch_failed_uris_tracked)
+        Options.stats_op(options, &StatsServer.fetch_failed(&1, page, max_failed_uris_to_track))
         []
     end
   end
@@ -117,12 +122,16 @@ defmodule Crawlie do
         [{page, response, parsed}]
       :skip ->
         UrlManager.page_skipped(url_stage, page)
+        Options.stats_op(options, &StatsServer.page_skipped(&1, page))
         []
       {:skip, _reason} ->
         UrlManager.page_skipped(url_stage, page)
+        Options.stats_op(options, &StatsServer.page_skipped(&1, page))
         []
       {:error, reason} ->
         UrlManager.page_failed(url_stage, page)
+        max_failed_uris_to_track = Keyword.fetch!(options, :max_parse_failed_uris_tracked)
+        Options.stats_op(options, &StatsServer.parse_failed(&1, page, max_failed_uris_to_track))
         Logger.warn "could not parse \"#{Page.url(page)}\", parsing failed with error #{inspect reason}"
         []
     end
@@ -137,6 +146,7 @@ defmodule Crawlie do
       pages = module.extract_uris(response, parsed, options)
         |> Enum.map(&Page.child(page, &1))
       UrlManager.add_children_pages(url_stage, pages)
+      Options.stats_op(options, &StatsServer.uris_extracted(&1, Enum.count(pages)))
     end
 
     UrlManager.page_succeeded(url_stage, page)
@@ -148,21 +158,6 @@ defmodule Crawlie do
   @doc false
   def extract_data_operation({_page, response, parsed}, options, module) do
     module.extract_data(response, parsed, options)
-  end
-
-
-  #===========================================================================
-  # Internal Functions
-  #===========================================================================
-
-  defp maybe_stats(options, op) do
-    case Keyword.get(options, :stats_ref) do
-      nil ->
-        :ok
-      ref ->
-        op.(ref)
-        :ok
-    end
   end
 
 end
