@@ -31,6 +31,12 @@ defmodule Crawlie.OptionsTest do
     end)
   end
 
+  test "strip_reserved strips reserved options" do
+    opts = [foo: :bar, stats_ref: :baz]
+
+    assert [foo: :bar] == Options.strip_reserved(opts)
+  end
+
   describe "merge_options" do
     test "doesn't break for empty lists" do
       assert [] == Options.merge([], [])

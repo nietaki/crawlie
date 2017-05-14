@@ -35,9 +35,9 @@ defmodule Crawlie.Stats.Server do
   # API Functions
   #===========================================================================
 
-  @spec get_new_ref() :: ref
+  @spec start_new() :: ref
   @doc false
-  def get_new_ref() do
+  def start_new() do
     {:ok, pid} = Crawlie.Supervisor.start_stats_server
     pid_to_ref(pid)
   end
@@ -63,8 +63,8 @@ defmodule Crawlie.Stats.Server do
   # Plumbing
   #===========================================================================
 
-  def init() do
-    state = %{}
+  def init([]) do
+    state = This.Data.new()
     {:ok, state}
   end
 

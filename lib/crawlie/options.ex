@@ -1,6 +1,7 @@
 defmodule Crawlie.Options do
 
   @valid_pqueue_modules [:pqueue, :pqueue2, :pqueue3, :pqueue4]
+  @reserved_keys [:stats_ref]
 
   #===========================================================================
   # API functions
@@ -41,6 +42,13 @@ defmodule Crawlie.Options do
       :max_demand,
       :stages,
     ]
+  end
+
+
+  @spec strip_reserved(Keyword.t) :: Keyword.t
+
+  def strip_reserved(options) do
+    Keyword.drop(options, @reserved_keys)
   end
 
 

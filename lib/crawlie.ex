@@ -10,6 +10,7 @@ defmodule Crawlie do
   alias Crawlie.Page
   alias Crawlie.Response
   alias Crawlie.Stage.UrlManager
+  alias Crawlie.Stats.Server, as: StatsServer
 
 
   @spec crawl(Stream.t, module, Keyword.t) :: Flow.t
@@ -50,8 +51,34 @@ defmodule Crawlie do
     good performance and allowing arbitrary `:max_depth` values.
   """
   def crawl(source, parser_logic, options \\ []) do
-    options = Options.with_defaults(options)
+    options = options
+      |> Options.strip_reserved()
+      |> Options.with_defaults()
 
+    _crawl(source, parser_logic, options)
+  end
+
+
+  @spec crawl_and_track_stats(Stream.t, module, Keyword.t) :: {StatsServer.ref, Flow.t}
+  @doc """
+  Crawls the urls provided in `source`, using the `Crawlie.ParserLogic` provided and collects the crawling statistics.
+
+  See `Crawlie.crawl/3` for details
+  """
+  def crawl_and_track_stats(source, parser_logic, options \\ []) do
+    ref = StatsServer.start_new()
+
+    options = options
+      |> Options.strip_reserved()
+      |> Options.with_defaults()
+
+    flow = _crawl(source, parser_logic, options)
+
+    {ref, flow}
+  end
+
+
+  defp _crawl(source, parser_logic, options) do
     {:ok, url_stage} = UrlManager.start_link(source, options)
 
     url_stage
@@ -62,6 +89,7 @@ defmodule Crawlie do
       |> Flow.flat_map(&parse_operation(&1, options, parser_logic, url_stage))
       |> Flow.each(&extract_uris_operation(&1, options, parser_logic, url_stage))
       |> Flow.flat_map(&extract_data_operation(&1, options, parser_logic))
+
   end
 
 
