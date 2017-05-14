@@ -31,6 +31,22 @@ defmodule Crawlie.Stats.Server do
     ]
 
     def new(), do: %This{}
+
+
+    def elapsed_usec(%This{utimestamp_started: nil}), do: 0
+
+    def elapsed_usec(%This{utimestamp_started: start, utimestamp_finished: nil}) do
+      Utils.utimestamp() - start
+    end
+
+    def elapsed_usec(%This{utimestamp_started: start, utimestamp_finished: finish}) do
+      finish - start
+    end
+
+
+    def finished?(%This{status: :finished}), do: true
+    def finished?(%This{}), do: false
+
   end
 
   defmodule ResponseView do
@@ -121,7 +137,6 @@ defmodule Crawlie.Stats.Server do
 
 
   def handle_cast({:fetch_succeeded, %Page{} = page, %ResponseView{} = response_view, duration_usec}, data) do
-    # TODO add time spent fetching
     %Page{uri: _uri, retries: retries, depth: depth} = page
     %ResponseView {status_code: status_code, content_type_simple: content_type, body_length: body_length} = response_view
 

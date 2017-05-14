@@ -9,6 +9,9 @@ defmodule Crawlie.Stats.ServerTest do
 
     assert %Data{} = data = Server.get_stats(ref)
     assert data.status == :ready
+
+    assert Data.finished?(data) == false
+    assert Data.elapsed_usec(data) == 0
   end
 
 end
