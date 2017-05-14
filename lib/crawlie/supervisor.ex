@@ -26,7 +26,7 @@ defmodule Crawlie.Supervisor do
 
   def init([]) do
     children = [
-      worker(Crawlie.StatsServer, [], restart: :temporary)
+      worker(Crawlie.Stats.Server, [], restart: :temporary)
     ]
 
     supervise(children, strategy: :simple_one_for_one)

@@ -1,4 +1,4 @@
-defmodule Crawlie.StatsServer do
+defmodule Crawlie.Stats.Server do
   use GenServer
 
   @ref_marker :stats
