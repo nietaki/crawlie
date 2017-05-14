@@ -144,21 +144,12 @@ defmodule Crawlie.Stats.Server do
       data
       |> maybe_start_crawling()
       |> Count.inc(:usec_spent_fetching, duration_usec)
-
-    data = case retries do
-      0 ->
-        data
-          |> Count.inc(:uris_visited)
-          |> Dist.add(:depths_dist, depth)
-          |> Dist.add(:retry_count_dist, 0)
-          |> Count.inc(:bytes_received, body_length)
-          |> Dist.add(:status_codes_dist, status_code)
-          |> Dist.add(:content_types_dist, content_type)
-      ret when ret > 0 ->
-        data
-          |> Dist.remove(:retry_count_dist, ret - 1)
-          |> Dist.add(:retry_count_dist, ret)
-    end
+      |> Count.inc(:bytes_received, body_length)
+      |> Count.inc(:uris_visited)
+      |> Dist.add(:depths_dist, depth)
+      |> Dist.add(:retry_count_dist, retries)
+      |> Dist.add(:status_codes_dist, status_code)
+      |> Dist.add(:content_types_dist, content_type)
 
     {:noreply, data}
   end

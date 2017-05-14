@@ -76,7 +76,7 @@ defmodule Crawlie.Response do
   """
   def content_type(%This{headers: headers}) do
     headers
-    |> Enum.find_value({nil, nil}, fn {k, v} ->
+    |> Enum.find_value(nil, fn {k, v} ->
       if String.downcase(k) == "content-type" do
         v
       else
