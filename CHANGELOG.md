@@ -1,10 +1,23 @@
 # Changelog
 
+## v0.6.0 (2017-05-16)
+
+Most planned (for now) features implemented. Unless there's emphatic feature requests, the development will probably focus on bug fixes and interface improvements.
+
+Enhancements:
+- Tracking crawling statistics. [#26](https://github.com/nietaki/crawlie/issues/26)
+
+Bug fixes:
+- Better `Crawlie.Response` behaviour on missing expected headers.
+- Removing potentially duplicated "crawling finished" debug messages from the logs. [#25](https://github.com/nietaki/crawlie/issues/25)
+
+
 ## v0.5.1 (2017-05-11)
 
 Enhancements:
 - Allowing the `Crawlie.ParserLogic` to skip pages without printing warnings. [#27](https://github.com/nietaki/crawlie/issues/27)
 - Better documentation for `Crawlie.ParserLogic` behaviour.
+
 
 ## v0.5.0 (2017-05-02)
 

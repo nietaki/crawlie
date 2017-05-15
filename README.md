@@ -27,10 +27,6 @@ If you're interested in the crawling statistics or want to track the progress in
 
 See [the docs](https://hexdocs.pm/crawlie/Crawlie.html#crawl/3) for supported options.
 
-## Planned features
-
-- Option of respecting `robots.txt` of the websites (on by default)
-
 ## Installation
 
 The package can be installed as:
@@ -39,7 +35,7 @@ The package can be installed as:
 
 ```elixir
 def deps do
-  [{:crawlie, "~> 0.5.1"}]
+  [{:crawlie, "~> 0.6.0"}]
 end
 ```
 
