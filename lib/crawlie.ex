@@ -9,7 +9,9 @@ defmodule Crawlie do
   alias Crawlie.Options
   alias Crawlie.Page
   alias Crawlie.Response
+  alias Crawlie.Utils
   alias Crawlie.Stage.UrlManager
+  alias Crawlie.Stats.Server, as: StatsServer
 
 
   @spec crawl(Stream.t, module, Keyword.t) :: Flow.t
@@ -21,6 +23,7 @@ defmodule Crawlie do
   the options for [HttPoison](https://hexdocs.pm/httpoison/HTTPoison.html#request/5),
   as well as Crawlie specific options.
 
+  It is perfectly ok to run multiple crawling sessions at the same time, they're independent.
 
   ## arguments
   - `source` - a `Stream` or an `Enum` containing the urls to crawl
@@ -50,8 +53,44 @@ defmodule Crawlie do
     good performance and allowing arbitrary `:max_depth` values.
   """
   def crawl(source, parser_logic, options \\ []) do
-    options = Options.with_defaults(options)
+    options = options
+      |> Options.strip_reserved()
+      |> Options.with_defaults()
 
+    _crawl(source, parser_logic, options)
+  end
+
+
+  @spec crawl_and_track_stats(Stream.t, module, Keyword.t) :: {StatsServer.ref, Flow.t}
+  @doc """
+  Crawls the urls provided in `source`, using the `Crawlie.ParserLogic` provided and collects the crawling statistics.
+
+  The statistics are accumulated independently, per `Crawlie.crawl_and_track_stats/3` call.
+
+  See `Crawlie.crawl/3` for details.
+
+  ## Additional options
+
+  (apart from the ones from `Crawlie.crawl/3`, which all apply as well)
+
+  - `:max_fetch_failed_uris_tracked` - `100` by default. The maximum quantity of uris that will be kept in the `Crawlie.Stats.Server`, for which the fetch operation was failed.
+  - `:max_parse_failed_uris_tracked` - `100` by default. The maximum quantity of uris that will be kept in the `Crawlie.Stats.Server`, for which the parse operation was failed.
+  """
+  def crawl_and_track_stats(source, parser_logic, options \\ []) do
+    ref = StatsServer.start_new()
+
+    options = options
+      |> Options.strip_reserved()
+      |> Keyword.put(:stats_ref, ref)
+      |> Options.with_defaults()
+
+    flow = _crawl(source, parser_logic, options)
+
+    {ref, flow}
+  end
+
+
+  defp _crawl(source, parser_logic, options) do
     {:ok, url_stage} = UrlManager.start_link(source, options)
 
     url_stage
@@ -69,11 +108,16 @@ defmodule Crawlie do
   @doc false
   def fetch_operation(%Page{uri: uri} = page, options, url_stage) do
     client = Keyword.get(options, :http_client)
+    start_time = Utils.utimestamp()
     case client.get(uri, options) do
       {:ok, response} ->
+        duration_usec = Utils.utimestamp() - start_time
+        Options.stats_op(options, &StatsServer.fetch_succeeded(&1, page, response, duration_usec))
         [{page, response}]
       {:error, _reason} ->
         UrlManager.page_failed(url_stage, page)
+        max_failed_uris_to_track = Keyword.fetch!(options, :max_fetch_failed_uris_tracked)
+        Options.stats_op(options, &StatsServer.fetch_failed(&1, page, max_failed_uris_to_track))
         []
     end
   end
@@ -88,12 +132,16 @@ defmodule Crawlie do
         [{page, response, parsed}]
       :skip ->
         UrlManager.page_skipped(url_stage, page)
+        Options.stats_op(options, &StatsServer.page_skipped(&1, page))
         []
       {:skip, _reason} ->
         UrlManager.page_skipped(url_stage, page)
+        Options.stats_op(options, &StatsServer.page_skipped(&1, page))
         []
       {:error, reason} ->
         UrlManager.page_failed(url_stage, page)
+        max_failed_uris_to_track = Keyword.fetch!(options, :max_parse_failed_uris_tracked)
+        Options.stats_op(options, &StatsServer.parse_failed(&1, page, max_failed_uris_to_track))
         Logger.warn "could not parse \"#{Page.url(page)}\", parsing failed with error #{inspect reason}"
         []
     end
@@ -108,6 +156,7 @@ defmodule Crawlie do
       pages = module.extract_uris(response, parsed, options)
         |> Enum.map(&Page.child(page, &1))
       UrlManager.add_children_pages(url_stage, pages)
+      Options.stats_op(options, &StatsServer.uris_extracted(&1, Enum.count(pages)))
     end
 
     UrlManager.page_succeeded(url_stage, page)

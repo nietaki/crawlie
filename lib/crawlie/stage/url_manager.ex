@@ -2,6 +2,7 @@ defmodule Crawlie.Stage.UrlManager do
   alias Crawlie.Options
   alias Crawlie.Page
   alias Crawlie.PqueueWrapper, as: PriorityQueue
+  alias Crawlie.Stats.Server, as: StatsServer
   alias __MODULE__, as: This
 
   use GenStage
@@ -57,7 +58,7 @@ defmodule Crawlie.Stage.UrlManager do
           Logger.error "Trying to add a page \"#{Page.url(page)}\" with 'depth' > max_depth: #{page.depth}"
           state
         page.retries > max_retries ->
-          Logger.warn("After #{page.retries} retries, failed to fetch #{page.uri}.")
+          Logger.info("After #{page.retries} retries, failed to fetch #{page.uri}.")
           state
         page.retries == 0 and State.visited?(state, page.uri) ->
           # not re-adding an already visited uri.
@@ -222,14 +223,16 @@ defmodule Crawlie.Stage.UrlManager do
     state = %State{state | pending_demand: remaining_demand}
 
     if State.finished_crawling?(state) do
-      Logger.debug("crawling finished")
       shutdown_gracefully(self())
+      Options.stats_op(state.options, &StatsServer.finished(&1))
     end
 
     {:noreply, pages, state}
   end
 
 
-  defp shutdown_gracefully(pid), do: GenStage.async_notify(pid, {:producer, :done})
+  defp shutdown_gracefully(pid) do
+    GenStage.async_notify(pid, {:producer, :done})
+  end
 
 end

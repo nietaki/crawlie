@@ -5,6 +5,7 @@ defmodule CrawlieTest do
   alias Crawlie.Response
   alias Crawlie.HttpClient.MockClient
   alias Crawlie.ParserLogic.Default, as: DefaultParserLogic
+  alias Crawlie.Stats.Server, as: StatsServer
 
   doctest Crawlie
 
@@ -184,6 +185,14 @@ defmodule CrawlieTest do
       "foo110",
       "foo111",
     ])
+  end
+
+  test "starting with stats tracking returns a valid Stats Server ref" do
+    {ref, _flow} = Crawlie.crawl_and_track_stats(["url"], LinkExtractingLogic, [])
+    data = StatsServer.get_stats(ref)
+
+    assert data.uris_extracted == 0
+    assert data.status == :ready
   end
 
   #---------------------------------------------------------------------------

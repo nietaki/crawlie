@@ -1,6 +1,7 @@
 defmodule Crawlie.Options do
 
   @valid_pqueue_modules [:pqueue, :pqueue2, :pqueue3, :pqueue4]
+  @reserved_keys [:stats_ref]
 
   #===========================================================================
   # API functions
@@ -28,6 +29,8 @@ defmodule Crawlie.Options do
         stages: core_count(),
       ],
       pqueue_module: :pqueue3,
+      max_fetch_failed_uris_tracked: 100,
+      max_parse_failed_uris_tracked: 100,
     ]
   end
 
@@ -41,6 +44,13 @@ defmodule Crawlie.Options do
       :max_demand,
       :stages,
     ]
+  end
+
+
+  @spec strip_reserved(Keyword.t) :: Keyword.t
+
+  def strip_reserved(options) do
+    Keyword.drop(options, @reserved_keys)
   end
 
 
@@ -89,5 +99,16 @@ defmodule Crawlie.Options do
   #===========================================================================
 
   def core_count(), do: System.schedulers_online
+
+  @doc false
+  def stats_op(options, op) do
+    case Keyword.get(options, :stats_ref) do
+      nil ->
+        :ok
+      ref ->
+        op.(ref)
+        :ok
+    end
+  end
 
 end

@@ -48,6 +48,11 @@ defmodule Crawlie.ResponseTest do
     assert Response.content_type_simple(base_case) == "text/html"
   end
 
+  test "content_type_simple/1 with empty headers" do
+    resp = Response.new(@url, @status_code, [], @body)
+    assert Response.content_type_simple(resp) == nil
+  end
+
   test "url/1" do
     assert Response.url(@r) == @url
   end
