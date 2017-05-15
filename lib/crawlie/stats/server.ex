@@ -11,6 +11,33 @@ defmodule Crawlie.Stats.Server do
   defmodule Data do
     alias __MODULE__, as: This
 
+    @typedoc """
+    Crawling status.
+    """
+    @type status :: :ready | :crawling | :finished
+
+    @typedoc """
+    Stats data returned by `Crawlie.Stats.Server.get_stats/1`.
+    """
+    @type t :: %This{
+      uris_visited: integer,
+      uris_extracted: integer,
+      depths_dist: map,
+      retry_count_dist: map,
+      bytes_received: integer,
+      status_codes_dist: map,
+      content_types_dist: map,
+      failed_fetch_uris: MapSet.t(URI.t),
+      uris_skipped: integer,
+      failed_parse_uris: MapSet.t(URI.t),
+
+      status: status,
+
+      utimestamp_started: nil | integer,
+      utimestamp_finished: nil | integer,
+      usec_spent_fetching: integer,
+    }
+
     defstruct [
       uris_visited: 0, # fetch
       uris_extracted: 0, # extract
@@ -33,6 +60,9 @@ defmodule Crawlie.Stats.Server do
     def new(), do: %This{}
 
 
+    @doc """
+    Returns time spent crawling (so far), in microseconds.
+    """
     def elapsed_usec(%This{utimestamp_started: nil}), do: 0
 
     def elapsed_usec(%This{utimestamp_started: start, utimestamp_finished: nil}) do
@@ -44,12 +74,17 @@ defmodule Crawlie.Stats.Server do
     end
 
 
+    @doc """
+    Returns true if the crawling is finished
+    """
     def finished?(%This{status: :finished}), do: true
     def finished?(%This{}), do: false
 
   end
 
   defmodule ResponseView do
+    @moduledoc false
+
     defstruct [
       :status_code,
       :content_type_simple,
@@ -68,8 +103,15 @@ defmodule Crawlie.Stats.Server do
 
   alias __MODULE__, as: This
 
+  @moduledoc """
+  Tracks the crawling statistics of a particular crawling session.
+  """
+
   @ref_marker :stats
 
+  @typedoc """
+  Reference used in the API to query the correct instance of `Crawlie.Stats.Server`.
+  """
   @type ref :: {:stats, pid()}
 
   #===========================================================================
@@ -84,14 +126,18 @@ defmodule Crawlie.Stats.Server do
   end
 
 
-  @spec get_stats(ref) :: map
+  @spec get_stats(ref) :: Data.t
+  @doc """
+  Returns a `t:Crawlie.Stats.Server.Data.t/0` object containing the crawling stats for a particular session.
 
+  The ref can be obtained from `Crawlie.crawl_and_track_stats/3`'s return tuple.
+  """
   def get_stats(ref) do
     pid = ref_to_pid(ref)
     GenServer.call(pid, :get_stats)
   end
 
-
+  @doc false
   def fetch_succeeded(ref, page, response, duration_usec) do
     pid = ref_to_pid(ref)
     response_view = ResponseView.new(response)
@@ -99,29 +145,35 @@ defmodule Crawlie.Stats.Server do
   end
 
 
+  @doc false
   def fetch_failed(ref, page, max_failed_uris_to_track) do
     pid = ref_to_pid(ref)
     GenServer.cast(pid, {:fetch_failed, page, max_failed_uris_to_track})
   end
 
 
+  @doc false
   def parse_failed(ref, page, max_failed_uris_to_track) do
     pid = ref_to_pid(ref)
     GenServer.cast(pid, {:parse_failed, page, max_failed_uris_to_track})
   end
 
 
+  @doc false
   def page_skipped(ref, _page) do
     pid = ref_to_pid(ref)
     GenServer.cast(pid, :page_skipped)
   end
 
 
+  @doc false
   def uris_extracted(ref, count) do
     pid = ref_to_pid(ref)
     GenServer.cast(pid, {:uris_extracted, count})
   end
 
+
+  @doc false
   def finished(ref) do
     pid = ref_to_pid(ref)
     GenServer.cast(pid, :finished)
@@ -131,11 +183,13 @@ defmodule Crawlie.Stats.Server do
   # Business logic
   #===========================================================================
 
+  @doc false
   def handle_call(:get_stats, _from, state) do
     {:reply, state, state}
   end
 
 
+  @doc false
   def handle_cast({:fetch_succeeded, %Page{} = page, %ResponseView{} = response_view, duration_usec}, data) do
     %Page{uri: _uri, retries: retries, depth: depth} = page
     %ResponseView {status_code: status_code, content_type_simple: content_type, body_length: body_length} = response_view
@@ -199,11 +253,13 @@ defmodule Crawlie.Stats.Server do
   # Plumbing
   #===========================================================================
 
+  @doc false
   def init([]) do
     state = This.Data.new()
     {:ok, state}
   end
 
+  @doc false
   def start_link() do
     GenServer.start_link(__MODULE__, [])
   end
