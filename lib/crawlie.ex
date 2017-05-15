@@ -23,6 +23,7 @@ defmodule Crawlie do
   the options for [HttPoison](https://hexdocs.pm/httpoison/HTTPoison.html#request/5),
   as well as Crawlie specific options.
 
+  It is perfectly ok to run multiple crawling sessions at the same time, they're independent.
 
   ## arguments
   - `source` - a `Stream` or an `Enum` containing the urls to crawl
@@ -64,7 +65,16 @@ defmodule Crawlie do
   @doc """
   Crawls the urls provided in `source`, using the `Crawlie.ParserLogic` provided and collects the crawling statistics.
 
-  See `Crawlie.crawl/3` for details
+  The statistics are accumulated independently, per `Crawlie.crawl_and_track_stats/3` call.
+
+  See `Crawlie.crawl/3` for details.
+
+  ## Additional options
+
+  (apart from the ones from `Crawlie.crawl/3`, which all apply as well)
+
+  - `:max_fetch_failed_uris_tracked` - `100` by default. The maximum quantity of uris that will be kept in the `Crawlie.Stats.Server`, for which the fetch operation was failed.
+  - `:max_parse_failed_uris_tracked` - `100` by default. The maximum quantity of uris that will be kept in the `Crawlie.Stats.Server`, for which the parse operation was failed.
   """
   def crawl_and_track_stats(source, parser_logic, options \\ []) do
     ref = StatsServer.start_new()

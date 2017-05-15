@@ -29,8 +29,8 @@ defmodule Crawlie.Options do
         stages: core_count(),
       ],
       pqueue_module: :pqueue3,
-      max_fetch_failed_uris_tracked: 1000,
-      max_parse_failed_uris_tracked: 1000,
+      max_fetch_failed_uris_tracked: 100,
+      max_parse_failed_uris_tracked: 100,
     ]
   end
 
