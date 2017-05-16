@@ -35,10 +35,14 @@ defmodule Crawlie.ResponseTest do
 
     assert r.headers == @headers
     assert r.body == @body
+
+    assert r.content_type == "text/html; charset=utf-8"
+    assert r.content_type_simple == "text/html"
   end
 
   test "content_type/1" do
-    assert Response.content_type(@r) == "text/html; charset=UTF-8"
+    assert Response.content_type(@r) == "text/html; charset=utf-8"
+    assert @r.content_type == "text/html; charset=utf-8"
   end
 
   test "content_type_simple/1" do
@@ -46,6 +50,7 @@ defmodule Crawlie.ResponseTest do
 
     base_case = Response.new(@url, @status_code, [{"content-type", "text/html"}], @body)
     assert Response.content_type_simple(base_case) == "text/html"
+    assert base_case.content_type_simple == "text/html"
   end
 
   test "content_type_simple/1 with empty headers" do
