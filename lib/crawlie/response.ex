@@ -14,6 +14,9 @@ defmodule Crawlie.Response do
     status_code: integer,
     headers: [{String.t, String.t}],
     body: binary,
+
+    content_type: String.t | nil,
+    content_type_simple: String.t | nil,
   }
 
   defstruct [
@@ -21,7 +24,11 @@ defmodule Crawlie.Response do
     :uri,
     :status_code,
     :headers,
-    :body
+    :body,
+
+    # "calculated" fields
+    :content_type,
+    :content_type_simple,
   ]
 
   #===========================================================================
@@ -49,6 +56,9 @@ defmodule Crawlie.Response do
       status_code: status_code,
       headers: headers,
       body: body,
+
+      content_type: get_content_type(headers),
+      content_type_simple: get_content_type_simple(headers),
     }
   end
 
@@ -64,7 +74,9 @@ defmodule Crawlie.Response do
 
   @spec content_type(This.t) :: String.t | nil
   @doc """
-  Retrieves the content type of the response.
+  Retrieves the (downcased) content type of the response.
+
+  Deprecated, you can use `response.content_type` directly
 
   ## Example
       iex> alias Crawlie.Response
@@ -72,24 +84,19 @@ defmodule Crawlie.Response do
       iex> headers = [{"Content-Type", "text/html; charset=UTF-8"}]
       iex> response = Response.new(url, 200, headers, "<html />")
       iex> Response.content_type(response)
-      "text/html; charset=UTF-8"
+      "text/html; charset=utf-8"
+      iex> Response.content_type(response) == response.content_type
+      true
   """
-  def content_type(%This{headers: headers}) do
-    headers
-    |> Enum.find_value(nil, fn {k, v} ->
-      if String.downcase(k) == "content-type" do
-        v
-      else
-        false
-      end
-    end)
-  end
+  def content_type(%This{content_type: content_type}), do: content_type
 
 
   @spec content_type_simple(This.t) :: String.t | nil
   @doc """
-  Retrieves the content type of the response, just the "type/subtype" part, with
+  Retrieves the (downcased) content type of the response, just the "type/subtype" part, with
   no additional parameters, if there are any in the Content-Type header value.
+
+  Deprecated, you can use `response.content_type_simple` directly
 
   ## Example
       iex> alias Crawlie.Response
@@ -98,9 +105,37 @@ defmodule Crawlie.Response do
       iex> response = Response.new(url, 200, headers, "<html />")
       iex> Response.content_type_simple(response)
       "text/html"
+      iex> Response.content_type_simple(response) == response.content_type_simple
+      true
   """
-  def content_type_simple(%This{} = this) do
-    case content_type(this) do
+  def content_type_simple(%This{content_type_simple: content_type_simple}) do
+    content_type_simple
+  end
+
+
+  #===========================================================================
+  # Internal Functions
+  #===========================================================================
+
+
+  @spec get_content_type([{String.t, String.t}]) :: String.t | nil
+
+  defp get_content_type(headers) do
+    headers
+    |> Enum.find_value(nil, fn {k, v} ->
+      if String.downcase(k) == "content-type" do
+        String.downcase(v)
+      else
+        false
+      end
+    end)
+  end
+
+
+  @spec get_content_type_simple([{String.t, String.t}]) :: String.t | nil
+
+  defp get_content_type_simple(headers) do
+    case get_content_type(headers) do
       nil -> nil
       ct ->
         ct
