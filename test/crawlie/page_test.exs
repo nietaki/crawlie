@@ -19,6 +19,13 @@ defmodule Crawlie.PageTest do
     assert Page.new(@uri, 7) == %Page{uri: @uri, depth: 7, retries: 0}
   end
 
+  test "constructor with parent tag passed in" do
+    assert Page.new({:foo, @uri}) == %Page{uri: @uri, depth: 0, retries: 0, parent_tag: :foo}
+    assert Page.new({:foo, @url}) == %Page{uri: @uri, depth: 0, retries: 0, parent_tag: :foo}
+
+    assert Page.new({:foo, @uri}, 7) == %Page{uri: @uri, depth: 7, retries: 0, parent_tag: :foo}
+  end
+
   test "Page structs compare by depth" do
     assert Page.new("foo", 0) < Page.new("foo", 10)
     assert Page.new("foo", 0) < Page.new("bar", 10)

@@ -14,16 +14,19 @@ defmodule Crawlie.Page do
     For example `depth=0` means it was passed directly from the caller, `depth=2` means
     the crawler followed 2 links from one of the starting urls to get to the url.
   - `:retries` - url fetch retry count. If the fetching of the url never failed before, `0`.
+  - `:parent_tag` - optional information passed from the parent
   """
   @type t :: %This{
     depth: integer,
     uri: URI.t,
-    retries: integer
+    retries: integer,
+    parent_tag: term | nil,
   }
   defstruct [
     :uri,
     depth: 0,
     retries: 0,
+    parent_tag: nil,
   ]
 
   #===========================================================================
@@ -31,10 +34,18 @@ defmodule Crawlie.Page do
   #===========================================================================
 
   @spec new(URI.t | String.t, integer) :: This.t
+  @spec new({parent_tag :: term, URI.t | String.t}, integer) :: This.t
   @doc """
   Creates a new `Crawlie.Page` struct from the url
   """
-  def new(uri, depth \\ 0) when is_integer(depth) do
+  def new(tag_uri, depth \\ 0)
+
+  def new({parent_tag, uri}, depth) do
+    page = new(uri, depth)
+    %This{page | parent_tag: parent_tag}
+  end
+
+  def new(uri, depth) when is_integer(depth) do
     uri =
       uri
       |> URI.parse() # works with both binaries and %URI{}
@@ -44,12 +55,13 @@ defmodule Crawlie.Page do
 
 
   @spec child(This.t, URI.t | String.t) :: This.t
+  @spec child(This.t, {parent_tag :: term, URI.t | String.t}) :: This.t
   @doc """
   Creates a "child page" - a new `Crawlie.Page` struct with depth one greate than
   the one of the parent and no retries.
   """
-  def child(%This{depth: depth}, uri) do
-    This.new(uri, depth + 1)
+  def child(%This{depth: depth}, tag_uri) do
+    This.new(tag_uri, depth + 1)
   end
 
 
