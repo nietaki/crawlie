@@ -21,7 +21,7 @@ Here's a rough diagram:
 
 ## Statistics
 
-If you're interested in the crawling statistics or want to track the progress in real time, see [`Crawlie.crawl_and_track_stats/3`](https://hexdocs.pm/crawlie/Crawlie.html#crawl_and_track_stats/3). It starts a [`Stats GenServer`](https:/hexdocs.pm/crawlie/Crawlie.Stats.Server.html) in Crawlie's supervision tree, which accumulates the statistics for the crawling session.
+If you're interested in the crawling statistics or want to track the progress in real time, see [`Crawlie.crawl_and_track_stats/3`](https://hexdocs.pm/crawlie/Crawlie.html#crawl_and_track_stats/3). It starts a [`Stats GenServer`](https://hexdocs.pm/crawlie/Crawlie.Stats.Server.html) in Crawlie's supervision tree, which accumulates the statistics for the crawling session.
 
 ## Configuration
 
