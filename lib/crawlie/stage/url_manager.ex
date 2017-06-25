@@ -223,16 +223,11 @@ defmodule Crawlie.Stage.UrlManager do
     state = %State{state | pending_demand: remaining_demand}
 
     if State.finished_crawling?(state) do
-      shutdown_gracefully(self())
       Options.stats_op(state.options, &StatsServer.finished(&1))
+      {:stop, :normal, state}
+    else
+      {:noreply, pages, state}
     end
-
-    {:noreply, pages, state}
-  end
-
-
-  defp shutdown_gracefully(pid) do
-    GenStage.async_notify(pid, {:producer, :done})
   end
 
 end

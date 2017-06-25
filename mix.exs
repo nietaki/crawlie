@@ -65,8 +65,8 @@ defmodule Crawlie.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:gen_stage, "~> 0.11.0"},
-      {:flow, "~> 0.11.1"},
+      {:gen_stage, "~> 0.12.0"},
+      {:flow, "~> 0.12.0"},
       {:httpoison, "~> 0.10.0"},
       {:pqueue, "~> 1.5"},
       {:meck, "~> 0.8", only: :test},
