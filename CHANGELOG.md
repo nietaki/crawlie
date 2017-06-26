@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.0 (2017-06-26)
+
+- Updating GenStage and Flow to 0.12.x
+
+
 ## v0.6.0 (2017-05-16)
 
 Most planned (for now) features implemented. Unless there's emphatic feature requests, the development will probably focus on bug fixes and interface improvements.

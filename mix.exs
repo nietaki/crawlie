@@ -11,7 +11,7 @@ defmodule Crawlie.Mixfile do
   #   - mix hex.build
   #   - mix hex.publish
 
-  @version "0.6.0"
+  @version "1.0.0"
 
 
   def project do
@@ -31,7 +31,7 @@ defmodule Crawlie.Mixfile do
         "coveralls.html": :test,
         "test": :test,
       ],
-      docs: docs,
+      docs: docs(),
    ]
   end
 
@@ -85,7 +85,7 @@ defmodule Crawlie.Mixfile do
         "GitHub" => "https://github.com/nietaki/crawlie",
         "Usage example" => "https://github.com/nietaki/crawlie_example",
       },
-      description: description,
+      description: description(),
     ]
   end
 

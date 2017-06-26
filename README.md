@@ -35,7 +35,7 @@ The package can be installed as:
 
 ```elixir
 def deps do
-  [{:crawlie, "~> 0.6.0"}]
+  [{:crawlie, "~> 1.0.0"}]
 end
 ```
 
