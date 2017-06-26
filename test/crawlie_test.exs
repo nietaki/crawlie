@@ -11,7 +11,7 @@ defmodule CrawlieTest do
 
 
   test "with default parser logic and a mock client" do
-    opts = Options.with_mock_client(test_opts)
+    opts = Options.with_mock_client(test_opts())
     opts = Keyword.put(opts, :mock_client_fun, MockClient.return_url)
     urls = ["https://abc.d/", "https://foo.bar/"]
     ret = Crawlie.crawl(urls, DefaultParserLogic, opts)
@@ -39,7 +39,7 @@ defmodule CrawlieTest do
   end
 
   test "with a slightly more complicated logic and a mock client" do
-    opts = Options.with_mock_client(test_opts ++ [foo: :bar])
+    opts = Options.with_mock_client(test_opts() ++ [foo: :bar])
     fun = fn(url) -> {:ok, (url <> " body")} end
     opts = Keyword.put(opts, :mock_client_fun, fun)
 
@@ -56,7 +56,7 @@ defmodule CrawlieTest do
   end
 
   test "urls that always return an error are not included in the results" do
-    opts = Options.with_mock_client(test_opts)
+    opts = Options.with_mock_client(test_opts())
     fun = fn
       "https://abc.d/" -> {:error, :something}
       url -> {:ok, url <> " body"}
@@ -87,7 +87,7 @@ defmodule CrawlieTest do
   end
 
   test "recursive traversal - url extraction" do
-    opts = Options.with_mock_client(test_opts ++ [max_depth: 2])
+    opts = Options.with_mock_client(test_opts() ++ [max_depth: 2])
     opts = Keyword.put(opts, :mock_client_fun, MockClient.return_url)
 
     urls = ["foo", "bar"]
@@ -112,7 +112,7 @@ defmodule CrawlieTest do
   end
 
   test "fetching a url succeeds if the fetch fails few enough times" do
-    opts = Options.with_mock_client(test_opts ++ [max_retries: 2])
+    opts = Options.with_mock_client(test_opts() ++ [max_retries: 2])
     opts = Keyword.put(opts, :mock_client_fun, errors_out_times(2))
 
     urls = ["foo"]
@@ -122,7 +122,7 @@ defmodule CrawlieTest do
   end
 
   test "fetching a url fails if the fetch fails too many times" do
-    opts = Options.with_mock_client(test_opts ++ [max_retries: 2])
+    opts = Options.with_mock_client(test_opts() ++ [max_retries: 2])
     opts = Keyword.put(opts, :mock_client_fun, errors_out_times(3))
 
     urls = ["foo"]
@@ -140,7 +140,7 @@ defmodule CrawlieTest do
   end
 
   test "if the parser skips a page, the page is skipped" do
-    opts = Options.with_mock_client(test_opts)
+    opts = Options.with_mock_client(test_opts())
     opts = Keyword.put(opts, :mock_client_fun, MockClient.return_url)
 
     urls = ["foo", "bar", "baz"]
@@ -156,7 +156,7 @@ defmodule CrawlieTest do
   end
 
   test "if the parser fails to parse a page, the page is skipped" do
-    opts = Options.with_mock_client(test_opts)
+    opts = Options.with_mock_client(test_opts())
     opts = Keyword.put(opts, :mock_client_fun, errors_out_times(3))
 
     urls = ["foo", "bar", "someweirdurl"]
@@ -166,7 +166,7 @@ defmodule CrawlieTest do
   end
 
   test "any page is visited no more than once" do
-    opts = Options.with_mock_client(test_opts ++ [max_depth: 2])
+    opts = Options.with_mock_client(test_opts() ++ [max_depth: 2])
     opts = Keyword.put(opts, :mock_client_fun, MockClient.return_url)
 
     urls = ["foo", "foo1"]

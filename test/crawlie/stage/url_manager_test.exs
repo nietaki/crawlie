@@ -18,7 +18,6 @@ defmodule Crawlie.Stage.UrlManagerTest do
   @baz URI.parse("baz")
   @pbaz Page.new(@baz)
 
-  @urls [@foo, @bar, @baz]
   @pages [@pfoo, @pbar, @pbaz]
   @pq_module :pqueue3
   @options [foo: :bar, pqueue_module: @pq_module]
