@@ -30,7 +30,7 @@ defmodule Crawlie.ParserLogic do
   @doc """
   Extracts the final data from the parsed page.
 
-  Note, this callback shoud return a list - you can return one, zero or many items
+  Note, this callback should return a list - you can return one, zero, or many items
   that will be put in the `t:Flow.t/0` returned by `Crawlie.crawl/3` - similar
   as in `Enum.flat_map/2`.
   """
