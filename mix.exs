@@ -27,9 +27,9 @@ defmodule Crawlie.Mixfile do
 
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
-        "coveralls": :test,
+        coveralls: :test,
         "coveralls.html": :test,
-        "test": :test,
+        test: :test,
       ],
       docs: docs(),
    ]
@@ -65,10 +65,10 @@ defmodule Crawlie.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:gen_stage, "~> 0.12.0"},
-      {:flow, "~> 0.12.0"},
+      {:gen_stage, "~> 0.14.1"},
+      {:flow, "~> 0.14.3"},
       {:httpoison, "~> 0.10.0"},
-      {:pqueue, "~> 1.5"},
+      {:pqueue, "~> 1.7.3"},
       {:meck, "~> 0.8", only: :test},
       # testing and documentation
       {:ex_doc, "~> 0.14.3", only: :dev},

@@ -93,8 +93,8 @@ defmodule Crawlie do
   defp _crawl(source, parser_logic, options) do
     {:ok, url_stage} = UrlManager.start_link(source, options)
 
-    url_stage
-      |> Flow.from_stage(options)
+    [url_stage]
+      |> Flow.from_stages(options)
       |> Flow.partition(Keyword.get(options, :fetch_phase))
       |> Flow.flat_map(&fetch_operation(&1, options, url_stage))
       |> Flow.partition(Keyword.get(options, :process_phase))

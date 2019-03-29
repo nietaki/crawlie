@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Update GenStage to 0.14.1
+- Update Flow to 0.14.3
+- Update meck
+- Update pqueue
+
 ## v1.0.0 (2017-06-26)
 
 - Updating GenStage and Flow to 0.12.x
