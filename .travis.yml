@@ -2,11 +2,8 @@ sudo: false
 language: elixir
 matrix:
   include:
-  - name: "1.3.4 and 18"
-    elixir: 1.3.4
-    otp_release: 18.3
-  - name: "1.3.4 and 19.1"
-    elixir: 1.3.4
+  - name: "1.5.3 and 19.1"
+    elixir: 1.5.3
     otp_release: 19.1
   - name: "1.8.1 and 21.2"
     elixir: 1.8.1
