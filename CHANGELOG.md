@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Update GenStage to 0.14.1
+- Update Flow to 0.14.3
+- Update httpoison requirement to allow newer versions
+- Update meck
+- Update pqueue
+
+**Breaking Changes**
+- Require Elixir 1.5.x (recent versions of flow and genstage both require 1.5.x)
+
 ## v1.0.0 (2017-06-26)
 
 - Updating GenStage and Flow to 0.12.x
