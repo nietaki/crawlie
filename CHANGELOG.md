@@ -4,6 +4,7 @@
 
 - Update GenStage to 0.14.1
 - Update Flow to 0.14.3
+- Update httpoison requirement to allow newer versions
 - Update meck
 - Update pqueue
 
