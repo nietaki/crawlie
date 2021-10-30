@@ -11,6 +11,7 @@ defmodule Crawlie.Mixfile do
   #   - mix hex.build
   #   - mix hex.publish
 
+  @source_url "https://github.com/nietaki/crawlie"
   @version "1.0.0"
 
 
@@ -31,13 +32,10 @@ defmodule Crawlie.Mixfile do
         "coveralls.html": :test,
         "test": :test,
       ],
-      docs: docs(),
+      docs: docs()
    ]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type "mix help compile.app" for more information
   def application do
     [
       applications: [:logger, :httpoison, :pqueue],
@@ -47,22 +45,19 @@ defmodule Crawlie.Mixfile do
 
   defp docs do
     [
+      extras: [
+        "CHANGELOG.md": [],
+        "LICENSE.md": [title: "License"],
+        "README.md": [title: "Overview"]
+      ],
       main: "readme",
-      source_url: "https://github.com/nietaki/crawlie",
-      extras: ["README.md"],
+      source_url: @source_url,
+      source_ref: "v#{@version}",
       assets: ["assets"],
+      formatters: ["html"]
     ]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
   defp deps do
     [
       {:gen_stage, "~> 0.12.0"},
@@ -71,27 +66,21 @@ defmodule Crawlie.Mixfile do
       {:pqueue, "~> 1.5"},
       {:meck, "~> 0.8", only: :test},
       # testing and documentation
-      {:ex_doc, "~> 0.14.3", only: :dev},
-      {:inch_ex, "~> 0.5.5", only: :dev},
-      {:excoveralls, "~> 0.4", only: :test},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.4", only: :test}
     ]
   end
 
   defp package do
     [
+      description: "A simple Elixir web crawler library powered by GenStage.",
       licenses: ["MIT"],
       maintainers: ["Jacek Królikowski <nietaki@gmail.com>"],
       links: %{
-        "GitHub" => "https://github.com/nietaki/crawlie",
+        "Changelog" => "https://hexdocs.com/crawlie",
         "Usage example" => "https://github.com/nietaki/crawlie_example",
+        "GitHub" => @source_url
       },
-      description: description(),
     ]
-  end
-
-  defp description do
-    """
-    A simple Elixir web crawler library powered by GenStage.
-    """
   end
 end

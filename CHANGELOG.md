@@ -1,5 +1,10 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## v1.0.0 (2017-06-26)
 
 - Updating GenStage and Flow to 0.12.x
@@ -26,7 +31,7 @@ Enhancements:
 
 ## v0.5.0 (2017-05-02)
 
-Enhancements: 
+Enhancements:
 - Limiting the memory usage by removing duplicate uris as soon as possible [#22](https://github.com/nietaki/crawlie/issues/22)
 - Simplifying initial Url Manager state [#23](https://github.com/nietaki/crawlie/issues/23)
 

@@ -45,7 +45,7 @@ defmodule Crawlie.Page do
 
   @spec child(This.t, URI.t | String.t) :: This.t
   @doc """
-  Creates a "child page" - a new `Crawlie.Page` struct with depth one greate than
+  Creates a "child page" - a new `Crawlie.Page` struct with depth one greater than
   the one of the parent and no retries.
   """
   def child(%This{depth: depth}, uri) do

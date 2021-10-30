@@ -29,7 +29,7 @@ defmodule Crawlie.PqueueWrapper do
   @spec new(atom) :: This.t
   @doc """
   Constructs a new `Crawlie.PqueueWrapper` priority queue with `module` as the
-  underlying impelementation.
+  underlying implementation.
   """
   def new(module) when module in @valid_pqueue_modules do
     %This{
@@ -71,7 +71,7 @@ defmodule Crawlie.PqueueWrapper do
 
   @spec take(This.t) :: {This.t, term}
   @doc """
-  Takes an element with the highes priority from the priority queue and returns
+  Takes an element with the highest priority from the priority queue and returns
   the priority queue without the element and the element itself.
   """
   def take(%This{module: module, data: data} = this) do
