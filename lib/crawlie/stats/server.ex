@@ -266,7 +266,7 @@ defmodule Crawlie.Stats.Server do
 
 
   #===========================================================================
-  # Inernal Functions
+  # Internal Functions
   #===========================================================================
 
   defp pid_to_ref(pid) do

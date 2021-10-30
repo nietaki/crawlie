@@ -1,5 +1,13 @@
-# Crawlie (the crawler) [![badge](https://travis-ci.org/nietaki/crawlie.svg?branch=master)](https://travis-ci.org/nietaki/crawlie) [![Coverage Status](https://coveralls.io/repos/github/nietaki/crawlie/badge.svg?branch=master)](https://coveralls.io/github/nietaki/crawlie?branch=master) [![Hex.pm](https://img.shields.io/hexpm/v/crawlie.svg)](https://hex.pm/packages/crawlie) [![docs](https://img.shields.io/badge/docs-hexdocs-yellow.svg)](https://hexdocs.pm/crawlie/) [![Built with Spacemacs](https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg)](http://spacemacs.org)
+# Crawlie (the crawler)
 
+[![badge](https://travis-ci.org/nietaki/crawlie.svg?branch=master)](https://travis-ci.org/nietaki/crawlie)
+[![Coverage Status](https://coveralls.io/repos/github/nietaki/crawlie/badge.svg?branch=master)](https://coveralls.io/github/nietaki/crawlie?branch=master)
+[![Module Version](https://img.shields.io/hexpm/v/crawlie.svg)](https://hex.pm/packages/crawlie)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/crawlie/)
+[![Total Download](https://img.shields.io/hexpm/dt/crawlie.svg)](https://hex.pm/packages/crawlie)
+[![License](https://img.shields.io/hexpm/l/crawlie.svg)](https://github.com/nietaki/crawlie/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/nietaki/crawlie.svg)](https://github.com/nietaki/crawlie/commits/master)
+[![Built with Spacemacs](https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg)](http://spacemacs.org)
 
 Crawlie is a simple Elixir library for writing decently-performing crawlers with minimum effort.
 
@@ -31,18 +39,29 @@ See [the docs](https://hexdocs.pm/crawlie/Crawlie.html#crawl/3) for supported op
 
 The package can be installed as:
 
-  1. Add `crawlie` to your list of dependencies in `mix.exs`:
+Add `:crawlie` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:crawlie, "~> 1.0.0"}]
+  [
+    {:crawlie, "~> 1.0.0"}
+  ]
 end
 ```
 
-  2. Ensure `crawlie` is started before your application:
+Ensure `:crawlie` is started before your application:
 
 ```elixir
 def application do
-  [applications: [:crawlie]]
+  [
+    applications: [:crawlie]
+  ]
 end
 ```
+
+## Copyright and License
+
+Copyright (c) 2016 Jacek Królikowski
+
+This work is free. You can redistribute it and/or modify it under the
+terms of the MIT License. See the [LICENSE.md](./LICENSE.md) file for more details.
